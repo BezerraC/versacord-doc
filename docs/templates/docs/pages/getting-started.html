@@ -1,0 +1,151 @@
+{% include 'docs/partials/head.html' %}
+{% load static %}
+
+<body class="bg-versa-light">
+    {% include 'docs/partials/navbar.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            {% include 'docs/partials/sidebar.html' %}
+            <div class="col-md-8 px-5 py-3">
+                {% include 'docs/partials/breadcrumb.html' %}
+
+                <h1 class="doc-h1" id="GettingStarted">Getting Started</h1>
+                <div class="mt-5"></div>
+                <h2 class="doc-h2">
+                    Is this your first time using the library? This is the place to get started!
+                </h2>
+                <div class="mt-5"></div>
+                <h2 class="doc-h2" id="quickstart">
+                    Quickstart
+                </h2>
+                <h4 class="doc-h4">This section gives a brief introduction to the library. It assumes you have the
+                    library installed, if you don’t check the <a href="/docs#installation">Installing</a> portion.</h4>
+                <div class="mt-5"></div>
+                <h2 class="doc-h2" id="AMinimalBot">
+                    A Minimal Bot
+                </h2>
+                <p>Let’s make a bot that responds to a slash command and walk you through it.</p>
+                <p>It looks something like this:</p>
+
+                <code>import versacord<br>
+                from versacord.ext import commands<br><br>
+
+                TESTING_GUILD_ID = 123456789  # Replace with your guild ID<br><br>
+
+                bot = commands.Bot()<br><br>
+
+                @bot.event<br>
+                async def on_ready():<br>
+                    print(f'We have logged in as {bot.user}')<br><br>
+
+                @bot.slash_command(description="My first slash command", guild_ids=[TESTING_GUILD_ID])<br>
+                async def hello(interaction: versacord.Interaction):<br>
+                    await interaction.send("Hello!")<br><br>
+
+                bot.run('your token here')</code>
+
+                <p>Let’s name this file <span class="code-style">example_bot.py</span>. Make sure not to name it
+                    <span class="code-style">versacord</span> as
+                    that’ll conflict with the library.
+                </p>
+
+                <p>A lot is going on here, so let’s walk you through it step by step.</p>
+                <ol>
+                    <li>The first line just imports the library, if this raises a
+                        <span class="code-style"><a
+                                href="https://docs.python.org/3/library/exceptions.html#ModuleNotFoundError"
+                                target="_blank">ModuleNotFoundError</a></span>
+                        or
+                        <span class="code-style"><a href="https://docs.python.org/3/library/exceptions.html#ImportError"
+                                target="_blank">ImportError</a></span>
+                        then head on over to <a href="/docs#installation">Installing</a> section to properly install.
+                    </li>
+                    <li>The second line imports the Bot commands framework which allows us to use the Bot class to
+                        create our bot.</li>
+                    <li>After that, we will declare a constant called <span class="code-style">TESTING_GUILD_ID</span>
+                        which will be used
+                        to identify the guild we want to use. This will allow us to test the command immediately in our
+                        server. Without this, we would have to wait up to an hour for the global command to register.
+                    </li>
+                    <li>Next, we create an instance of a Bot. This bot is our connection to Discord.</li>
+                    <li>We then use the bot.event decorator to register an event. This library has many events. Since
+                        this library is asynchronous, we do things in a “callback” style manner.<br>A callback is
+                        essentially a function that is called when something happens. In our case, the on_ready() event
+                        is called when the bot has finished logging in and setting things up.</li>
+                    <li>Next, we use the bot.slash_command decorator to register a slash command. This decorator can
+                        take arguments for configuring the slash commands such as the description and guild IDs where
+                        you want the command to be registered. The callback of the slash command takes in an Interaction
+                        object as a parameter which can be used to respond to the user. In the callback, we use the
+                        method Interaction.send() to reply.</li>
+                    <li>Finally, we run the bot with our login token. If you need help getting your token or creating a
+                        bot, look in the Creating a Bot Account section.</li>
+                </ol>
+
+                <p>Now that we’ve made a bot, we have to run the bot. Luckily, this is simple since this is just a
+                    Python script, we can run it directly.</p>
+                <p>On Windows:</p>
+
+                <code>$ py -3 example_bot.py</code>
+                <p>On other systems:</p>
+                <code>$ python3 example_bot.py</code>
+
+                <p>Now you can try playing around with your basic bot</p>
+                <p>You can find more examples in the <a
+                        href="https://github.com/owera/versa-framework/tree/master/examples" target="_blank">examples
+                        directory</a> on GitHub.
+                </p>
+                <div class="mt-5"></div>
+                <h2 class="doc-h2" id="SettingUpLogging">
+                    Setting Up Logging
+                </h2>
+                <p>versacord logs errors and debug information via the logging python module. It is strongly recommended
+                    that the logging module is configured, as no errors or warnings will be output if it is not set up.
+                    Configuration of the <span class="code-style">logging</span> module can be as simple as:</p>
+
+                <code>
+                    import logging<br><br>
+
+                    logging.basicConfig(level=logging.INFO)
+                </code>
+
+                <p>Placed at the start of the application. This will output the logs from discord as well as other
+                    libraries that use the <span class="code-style">logging</span> module directly to the console.</p>
+
+                <p>The optional level argument specifies what <span class="code-style">level</span> of events to log out
+                    and can be any of <span class="code-style">CRITICAL</span>, <span class="code-style">ERROR</span>,
+                    <span class="code-style">WARNING</span>, <span class="code-style">INFO</span>, and <span
+                        class="code-style">DEBUG</span> and if not specified defaults to <span
+                        class="code-style">WARNING</span>.
+                </p>
+
+                <p>More advanced setups are possible with the logging module. For example to write the logs to a file
+                    called <span class="code-style">versacord.log</span> instead of outputting them to the console the
+                    following snippet can be used:</p>
+
+                <code>
+                    import versacord<br>
+                    import logging<br><br>
+
+                    logger = logging.getLogger('versacord')<br>
+                    logger.setLevel(logging.DEBUG)<br>
+                    handler = logging.FileHandler(filename='versacord.log', encoding='utf-8', mode='w')<br>
+                    handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))<br>
+                    logger.addHandler(handler)
+
+                </code>
+
+                This is recommended, especially at verbose levels such as <span class="code-style">INFO</span> and <span
+                    class="code-style">DEBUG</span>, as there are a lot of events logged and it would clog the stdout of
+                your program.
+
+                For more information, check the documentation and tutorial of the logging module.
+                <div class="mt-5"></div>
+            </div>
+
+            {% include 'docs/partials/scrollbar.html' %}
+        </div>
+    </div>
+    {% include 'docs/partials/footer.html' %}
+</body>
+
+</html>

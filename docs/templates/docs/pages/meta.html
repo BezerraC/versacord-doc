@@ -1,0 +1,40 @@
+{% include 'docs/partials/head.html' %}
+{% load static %}
+
+<body class="bg-versa-light">
+    {% include 'docs/partials/navbar.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            {% include 'docs/partials/sidebar.html' %}
+            <div class="col-md-8 px-5 py-3">
+                {% include 'docs/partials/breadcrumb.html' %}
+                <h1 class="doc-h1" id="Gettinghelp">Meta</h1>
+
+                <div class="mt-5"></div>
+                <p class="doc-p">If you’re looking for something related to the project itself, it’s here.</p>
+                <ul>
+                    <li class="mt-3">
+                        <a href="#">Changelog</a>
+                    </li>
+                    <li class="mt-3">
+                        <a href="#">Version Guarantees</a>
+                    </li>
+                    <li class="mt-3">
+                        <a href="#">Application Commands</a>
+                    </li>
+                    <li class="mt-3">
+                        <a href="#">Migrating to versacord</a>
+                    </li>
+                </ul>
+
+
+
+                <div class="mt-5"></div>
+            </div>
+            {% include 'docs/partials/scrollbar.html' %}
+        </div>
+    </div>
+    {% include 'docs/partials/footer.html' %}
+</body>
+
+</html>

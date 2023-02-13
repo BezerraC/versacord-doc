@@ -1,0 +1,369 @@
+{% include 'docs/partials/head.html' %}
+{% load static %}
+
+<body class="bg-versa-light">
+    {% include 'docs/partials/navbar.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            {% include 'docs/partials/sidebar.html' %}
+            <div class="col-md-8 px-5 py-3">
+                {% include 'docs/partials/breadcrumb.html' %}
+
+                <h1 class="doc-h1" id="APIReference">API Reference</h1>
+                <div class="mt-5"></div>
+                <h4 class="doc-h4">
+                    The following section outlines the API of nextcord.
+                </h4>
+                <div class="alert info alert-warning" role="alert" data-mdb-color="warning">
+                    <i class="fas fa-info-circle me-3"></i><span>Note</span>
+                    <p class="mt-1">This module uses the Python logging module to log diagnostic and errors in an
+                        output-independent way. If the logging module is not configured, these logs will not be output
+                        anywhere. See <a href="/docs/gettingstarted/#SettingUpLogging">Setting Up Logging</a> for more
+                        information on how to set up and use the logging
+                        module with versacord.
+                    </p>
+                </div>
+
+                <div class="mt-5"></div>
+                <h2 class="doc-h2" id="VersionRelatedInfo">
+                    Version Related Info
+                </h2>
+                <p>There are two main ways to query version information about the library. For guarantees, check <a
+                        href="#">Version Guarantees</a>.</p>
+
+                <code>versacord.version_info</code>
+                <p>A named tuple that is similar to <a
+                        href="https://docs.python.org/3/library/sys.html#sys.version_info">sys.version_info</a>.</p>
+
+                <p>Just like <a href="https://docs.python.org/3/library/sys.html#sys.version_info">sys.version_info</a>
+                    the valid values for <span class="code-style">releaselevel</span> are ‘alpha’, ‘beta’, ‘candidate’
+                    and ‘final’.</p>
+
+                <code>versacord.__version__</code>
+                <p>A string representation of the version. e.g. <span class="code-style">'1.0.0rc1'</span>. This is
+                    based off of <a href="https://peps.python.org/pep-0440/">PEP 440</a>.</p>
+
+
+                <div class="mt-5"></div>
+                <h2 class="doc-h2" id="Clients">
+                    Clients
+                </h2>
+                <div class="mt-3"></div>
+                <h4 id="Client">
+                    Client
+                </h4>
+                <code>
+                    class nextcord.Client(*, max_messages=1000, connector=None, proxy=None, proxy_auth=None, shard_id=None, shard_count=None, application_id=None, intents=<Intents value=3243773>, member_cache_flags=..., chunk_guilds_at_startup=..., status=None, activity=None, allowed_mentions=None, heartbeat_timeout=60.0, guild_ready_timeout=2.0, assume_unsync_clock=True, enable_debug_events=False, loop=None, lazy_load_commands=True, rollout_associate_known=True, rollout_delete_unknown=True, rollout_register_new=True, rollout_update_known=True, rollout_all_guilds=False, default_guild_ids=None)¶
+                </code>
+                <div class="row mt-2">
+                    <div class="col">
+                        <p>Attributes</p>
+                        <ul>
+                            <li><a href="#">activity</a></li>
+                            <li><a href="#">allowed_mentions</a></li>
+                            <li><a href="#">application_flags</a></li>
+                            <li><a href="#">application_id</a></li>
+                            <li><a href="#">cached_messages</a></li>
+                            <li><a href="#">default_guild_ids</a></li>
+                            <li><a href="#">emojis</a></li>
+                            <li><a href="#">guilds</a></li>
+                            <li><a href="#">intents</a></li>
+                            <li><a href="#">latency</a></li>
+                            <li><a href="#loop">loop</a></li>
+                            <li><a href="#">persistent_views</a></li>
+                            <li><a href="#">private_channels</a></li>
+                            <li><a href="#">scheduled_events</a></li>
+                            <li><a href="#">status</a></li>
+                            <li><a href="#">stickers</a></li>
+                            <li><a href="#">user</a></li>
+                            <li><a href="#">users</a></li>
+                            <li><a href="#">voice_clients</a></li>
+                            <li><a href="#ws">ws</a></li>
+                        </ul>
+                    </div>
+                    <div class="col">
+                        <p>Methods</p>
+                        <ul>
+                            <li><span>def</span> <a href="#">add_all_application_commands</a></li>
+                            <li><span>def</span> <a href="#">add_all_cog_commands</a></li>
+                            <li><span>def</span> <a href="#">add_application_command</a></li>
+                            <li><span>def</span> <a href="#">add_modal</a></li>
+                            <li><span>def</span> <a href="#">add_view</a></li>
+                            <li><span>async</span> <a href="#">application_info</a></li>
+                            <li><span>async</span> <a href="#">associate_application_commands</a></li>
+                            <li><span>async</span> <a href="#">before_identify_hook</a></li>
+                            <li><span>async</span> <a href="#">change_presence</a></li>
+                            <li><span>def</span> <a href="#">clear</a></li>
+                            <li><span>async</span> <a href="#">close</a></li>
+                            <li><span>async</span> <a href="#">connect</a></li>
+                            <li><span>async</span> <a href="#">create_dm</a></li>
+                            <li><span>async</span> <a href="#">create_guild</a></li>
+                            <li><span>async</span> <a href="#">delete_application_commands</a></li>
+                            <li><span>async</span> <a href="#">delete_invite</a></li>
+                            <li><span>async</span> <a href="#">delete_unknown_application_commands</a></li>
+                            <li><span>async</span> <a href="#">discover_application_commands</a></li>
+                            <li><span>@</span> <a href="#">event</a></li>
+                            <li><span>async</span> <a href="#">fetch_channel</a></li>
+                            <li><span>async</span> <a href="#">fetch_guild</a></li>
+                            <li><span>def</span> <a href="#">fetch_guilds</a></li>
+                            <li><span>async</span> <a href="#">fetch_invite</a></li>
+                            <li><span>async</span> <a href="#">fetch_premium_sticker_packs</a></li>
+                            <li><span>async</span> <a href="#">fetch_stage_instance</a></li>
+                            <li><span>async</span> <a href="#">fetch_sticker</a></li>
+                            <li><span>async</span> <a href="#">fetch_template</a></li>
+                            <li><span>async</span> <a href="#">fetch_user</a></li>
+                            <li><span>async</span> <a href="#">fetch_webhook</a></li>
+                            <li><span>async</span> <a href="#">fetch_widget</a></li>
+                            <li><span>def</span> <a href="#">get_all_application_commands</a></li>
+                            <li><span>def</span> <a href="#">get_all_channels</a></li>
+                            <li><span>def</span> <a href="#">get_all_members</a></li>
+                            <li><span>def</span> <a href="#">get_application_command</a></li>
+                            <li><span>def</span> <a href="#">get_application_command_from_signature</a></li>
+                            <li><span>def</span> <a href="#">get_application_commands</a></li>
+                            <li><span>def</span> <a href="#">get_channel</a></li>
+                            <li><span>def</span> <a href="#">get_emoji</a></li>
+                            <li><span>def</span> <a href="#">get_guild</a></li>
+                            <li><span>def</span> <a href="#">get_interaction</a></li>
+                            <li><span>def</span> <a href="#">get_partial_messageable</a></li>
+                            <li><span>def</span> <a href="#">get_scheduled_event</a></li>
+                            <li><span>def</span> <a href="#">get_stage_instance</a></li>
+                            <li><span>def</span> <a href="#">get_sticker</a></li>
+                            <li><span>def</span> <a href="#">get_user</a></li>
+                            <li><span>def</span> <a href="#">is_closed</a></li>
+                            <li><span>def</span> <a href="#">is_ready</a></li>
+                            <li><span>def</span> <a href="#">is_ws_ratelimited</a></li>
+                            <li><span>async</span> <a href="#">login</a></li>
+                            <li><span>def</span> <a href="#">message_command</a></li>
+                            <li><span>async</span> <a href="#">on_application_command_error</a></li>
+                            <li><span>async</span> <a href="#">on_error</a></li>
+                            <li><span>def</span> <a href="#">parse_mentions</a></li>
+                            <li><span>async</span> <a href="#">process_application_commands</a></li>
+                            <li><span>async</span> <a href="#">register_application_commands</a></li>
+                            <li><span>async</span> <a href="#">register_new_application_commands</a></li>
+                            <li><span>def</span> <a href="#">remove_modal</a></li>
+                            <li><span>def</span> <a href="#">remove_view</a></li>
+                            <li><span>async</span> <a href="#">rollout_application_commands</a></li>
+                            <li><span>def</span> <a href="#">run</a></li>
+                            <li><span>def</span> <a href="#">slash_command</a></li>
+                            <li><span>async</span> <a href="#">start</a></li>
+                            <li><span>async</span> <a href="#">sync_all_application_commands</a></li>
+                            <li><span>async</span> <a href="#">sync_application_commands</a></li>
+                            <li><span>async</span> <a href="#">update_application_commands</a></li>
+                            <li><span>def</span> <a href="#">user_command</a></li>
+                            <li><span>async</span> <a href="#">wait_for</a></li>
+                            <li><span>async</span> <a href="#">wait_until_ready</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <p>Represents a client connection that connects to Discord. This class is used to interact with the
+                    Discord WebSocket and API.</p>
+
+                <p>A number of options can be passed to the <a href="#Client">Client</a>.</p>
+                <p><b>Parameters:</b></p>
+                <ul>
+                    <li>
+                        <p><b>max_messages</b> (Optional[<a
+                                href="https://docs.python.org/3/library/functions.html#int">int</a>]) –</p>
+
+                        <p>The maximum number of messages to store in the internal message cache. This defaults to <span
+                                class="code-style">1000</span>. Passing in <span class="code-style">None</span> disables
+                            the message</p>
+                    </li>
+                    <li>
+                        <p><b>loop</b> (Optional[<a
+                                href="https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop">asyncio.AbstractEventLoop</a>])
+                            – The <a
+                                href="https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop">asyncio.AbstractEventLoop</a>
+                            to use for asynchronous operations. Defaults to None, in which case the default event loop
+                            is used via <a
+                                href="https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.get_event_loop">asyncio.get_event_loop()</a>.
+                        </p>
+                    </li>
+                    <li>
+                        <p><b>connector</b> (Optional[<a
+                                href="https://docs.aiohttp.org/en/stable/client_reference.html#aiohttp.BaseConnector">aiohttp.BaseConnector</a>])
+                            – The connector to use for connection pooling.</p>
+                    </li>
+                    <li>
+                        <p><b>proxy</b> (Optional[<a
+                                href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]) – Proxy URL.</p>
+                    </li>
+                    <li>
+                        <p><b>proxy_auth</b> (Optional[<a
+                                href="https://docs.aiohttp.org/en/stable/client_reference.html#aiohttp.BasicAuth">aiohttp.BasicAuth</a>])
+                            – An object that represents proxy HTTP Basic Authorization.</p>
+                    </li>
+                    <li>
+                        <p><b>shard_id</b> (Optional[<a
+                                href="https://docs.python.org/3/library/functions.html#int">int</a>]) – Integer starting
+                            at <span class="code-style">0</span> and less than <a href="#">shard_count</a>.</p>
+                    </li>
+                    <li>
+                        <p><b>shard_count</b> (Optional[<a
+                                href="https://docs.python.org/3/library/functions.html#int">int</a>]) – The total number
+                            of shards.</p>
+                    </li>
+                    <li>
+                        <p><b>application_id</b> (Optional[<a
+                                href="https://docs.python.org/3/library/functions.html#int">int</a>]) – The client’s
+                            application ID.</p>
+                    </li>
+                    <li>
+                        <p><b>intents</b> (<a href="#">Intents</a>) –</p>
+
+                        <p>The intents that you want to enable for the session. This is a way of disabling and enabling
+                            certain gateway events from triggering and being sent. If not given, defaults to a regularly
+                            constructed <a href="#">Intents</a> class.</p>
+                    </li>
+                    <li>
+                        <p><b>member_cache_flags</b> (<a href="#">MemberCacheFlags</a>) –</p>
+
+                        <p>Allows for finer control over how the library caches members. If not given, defaults to cache
+                            as much as possible with the currently selected intents.</p>
+                    </li>
+                    <li>
+                        <p>chunk_guilds_at_startup (<a
+                                href="https://docs.python.org/3/library/functions.html#bool">bool</a>) –</p>
+
+                        <p>Indicates if <a href="#on_ready">on_ready()</a> should be delayed to chunk all guilds at
+                            start-up if necessary. This operation is incredibly slow for large amounts of guilds. The
+                            default is <span class="code-style">True</span> if <a href="#members">Intents.members</a> is
+                            <span class="code-style">True</span>.
+                        </p>
+                    </li>
+                    <li>
+                        <p><b>status</b> (Optional[<a href="#Status">Status</a>]) – A status to start your presence with
+                            upon logging on to Discord.</p>
+                    </li>
+                    <li>
+                        <p><b>activity</b> (Optional[<a href="#BaseActivity">BaseActivity</a>]) – An activity to start
+                            your presence with upon logging on to Discord.</p>
+                    </li>
+                    <li>
+                        <p><b>allowed_mentions</b> (Optional[<a href="#AllowedMentions">AllowedMentions</a>]) –</p>
+
+                        <p>Control how the client handles mentions by default on every message sent.</p>
+                    </li>
+                    <li>
+                        <p><b>heartbeat_timeout</b> (<a
+                                href="https://docs.python.org/3/library/functions.html#float">float</a>) – The maximum
+                            numbers of seconds before timing out and restarting the WebSocket in the case of not
+                            receiving a HEARTBEAT_ACK. Useful if processing the initial packets take too long to the
+                            point of disconnecting you. The default timeout is 60 seconds.</p>
+                    </li>
+                    <li>
+                        <p><b>guild_ready_timeout</b> (<a
+                                href="https://docs.python.org/3/library/functions.html#float">float</a>) –
+
+                            The maximum number of seconds to wait for the GUILD_CREATE stream to end before preparing
+                            the member cache and firing READY. The default timeout is 2 seconds.</p>
+                    </li>
+                    <li>
+                        <p><b>assume_unsync_clock</b> (<a
+                                href="https://docs.python.org/3/library/functions.html#bool">bool</a>) –</p>
+
+                        <p>Whether to assume the system clock is unsynced. This applies to the ratelimit handling code.
+                            If this is set to <span class="code-style">True</span>, the default, then the library uses
+                            the time to reset a rate limit bucket given by Discord. If this is <span
+                                class="code-style">False</span> then your system clock is used to calculate how long to
+                            sleep for. If this is set to <span class="code-style">False</span> it is recommended to sync
+                            your system clock to Google’s NTP server.</p>
+                    </li>
+                    <li>
+                        <p><b>enable_debug_events</b> (<a
+                                href="https://docs.python.org/3/library/functions.html#bool">bool</a>) –
+
+                            Whether to enable events that are useful only for debugging gateway related information.
+
+                            Right now this involves <a href="#on_socket_raw_receive">on_socket_raw_receive()</a> and <a
+                                href="#on_socket_raw_receive">on_socket_raw_send().</a> If this is <span
+                                class="code-style">False</span> then those events will not be dispatched (due to
+                            performance considerations). To enable these events, this must be set to <span
+                                class="code-style">True</span>. Defaults to <span class="code-style">False</span>.</p>
+                    </li>
+                    <li>
+                        <p><b>lazy_load_commands</b> (<a
+                                href="https://docs.python.org/3/library/functions.html#bool">bool</a>) –</p>
+
+                        <p>Whether to attempt to associate an unknown incoming application command ID with an existing
+                            application command.</p>
+
+                        <p>If this is set to <span class="code-style">True</span>, the default, then the library will
+                            attempt to match up an unknown incoming application command payload to an application
+                            command in the library.</p>
+                    </li>
+                    <li>
+                        <p><b>rollout_associate_known</b> (<a
+                                href="https://docs.python.org/3/library/functions.html#bool">bool</a>) – Whether during
+                            the application command rollout to associate found Discord commands with commands added
+                            locally. Defaults to <span class="code-style">True</span>.</p>
+                    </li>
+                    <li>
+                        <p><b>rollout_delete_unknown</b> (<a
+                                href="https://docs.python.org/3/library/functions.html#bool">bool</a>) – Whether during
+                            the application command rollout to delete commands from Discord that don’t correspond with a
+                            locally added command. Defaults to <span class="code-style">True</span>.</p>
+                    </li>
+                    <li>
+                        <p><b>rollout_register_new</b> (<a
+                                href="https://docs.python.org/3/library/functions.html#bool">bool</a>) – Whether during
+                            the application command rollout to register new application commands that were added locally
+                            but not found on Discord. Defaults to <span class="code-style">True</span>.</p>
+                    </li>
+                    <li>
+                        <p><b>rollout_update_known</b> (bool) – Whether during the application command rollout to update
+                            known applications that share the same signature but don’t quite match what is registered on
+                            Discord. Defaults to <span class="code-style">True</span>.</p>
+                    </li>
+                    <li>
+                        <p><b>rollout_all_guilds</b> (<a
+                                href="https://docs.python.org/3/library/functions.html#bool">bool</a>) –</p>
+
+                        <p>Whether during the application command rollout to update to all guilds, instead of only ones
+                            with at least one command to roll out to them. Defaults to <span
+                                class="code-style">False</span></p>
+
+                        <p>Warning: While enabling this will prevent “ghost” commands on guilds with removed code
+                            references, rolling out to ALL guilds with anything other than a very small bot will likely
+                            cause it to get rate limited.</p>
+                    </li>
+                    <li>
+                        <p><b>default_guild_ids</b> (Optional[List[<a
+                                href="https://docs.python.org/3/library/functions.html#int">int</a>]]) –</p>
+
+                        <p>The default guild ids for every application command set. If the application command doesn’t
+                            have any explicit guild ids set and this list is not empty, then the application command’s
+                            guild ids will be set to this. Defaults to <span class="code-style">None</span>.</p>
+                    </li>
+                </ul>
+                <div class="mt-5"></div>
+                <code id="ws"><b>ws</b></code>
+                <p>The websocket gateway the client is currently connected to. Could be <span
+                        class="code-style">None</span>.</p>
+
+
+                <div class="mt-5"></div>
+                <code id="loop"><b>loop</b></code>
+                <p>The event loop that the client uses for asynchronous operations.</p>
+
+                <b>Type:</b>
+                <ul>
+                    <li>
+                        <p><a
+                                href="https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop">asyncio.AbstractEventLoop</a>
+                        </p>
+                    </li>
+                </ul>
+
+
+                <div class="mt-5"></div>
+            </div>
+
+            {% include 'docs/partials/scrollbar.html' %}
+        </div>
+    </div>
+    {% include 'docs/partials/footer.html' %}
+</body>
+
+</html>

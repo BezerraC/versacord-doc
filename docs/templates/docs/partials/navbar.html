@@ -1,0 +1,48 @@
+{% load static %}
+<nav class="navbar navbar-dark navbar-expand-md bg-versa">
+    <div class="container-fluid px-5">
+        <a class="navbar-brand" href="/">
+            <img src="{% static 'images/logo_site_white.png' %}" alt="Versacord Logo" width="30" height="24"
+                class="d-inline-block align-text-top">
+            Versacord</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav col">
+                <li class="nav-item">
+                    <a 
+                        {% if request.path == "/" %}
+                            class="nav-link active" 
+                        {% else %}   
+                        class="nav-link" 
+                        {% endif %}  
+                        aria-current="page" href="/">Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a 
+                        {% if request.path == "/docs/" %}
+                            class="nav-link active" 
+                        {% else %}   
+                        class="nav-link" 
+                        {% endif %}  
+                        aria-current="page" href="/docs">Documentation
+                    </a>
+                </li>
+                {% comment %} <li class="nav-item">
+                    <a class="nav-link" href="/guide">Guide</a>
+                </li> {% endcomment %}
+            </ul>
+            <ul class="navbar-nav col flex-md-row-reverse">
+                <li class="nav-item">
+                    <a class="nav-link" href="https://discord.gg/Fee6Kptq57" target="_blank">Discord <i class="fas fa-external-link-alt"></i></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="https://github.com/owera/versa-framework" target="_blank">Github <i class="fas fa-external-link-alt"></i></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

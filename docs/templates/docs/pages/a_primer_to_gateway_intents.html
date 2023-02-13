@@ -1,0 +1,368 @@
+{% include 'docs/partials/head.html' %}
+{% load static %}
+
+<body class="bg-versa-light">
+    {% include 'docs/partials/navbar.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            {% include 'docs/partials/sidebar.html' %}
+            <div class="col-md-8 px-5 py-3">
+                {% include 'docs/partials/breadcrumb.html' %}
+
+                <h1 class="doc-h1" id="APrimertoGatewayIntents">A Primer to Gateway Intents</h1>
+                <p>In version 1.5 comes the introduction of <span class="code-style">Intents</span>. This is a radical
+                    change in how bots are written.
+                    Put simply, an intent allows a bot to subscribe to specific buckets of events. The events that
+                    correspond to each intent are documented in the individual attribute of the <span
+                        class="code-style">Intents</span> documentation.
+                </p>
+
+                <p>These intents are passed to the constructor of <span class="code-style">Client</span> or its
+                    subclasses (<span class="code-style">AutoShardedClient</span>,
+                    <span class="code-style">AutoShardedBot</span>, <span class="code-style">Bot</span>) with the
+                    intents argument.
+                </p>
+
+                <p>If intents are not passed, then the library defaults to every intent being enabled except the
+                    privileged intents, currently <span class="code-style">Intents.members</span>, <span
+                        class="code-style">Intents.presences</span>, and <span
+                        class="code-style">Intents.message_content</span>.</p>
+                <div class="mt-5"></div>
+                <h2 class="doc-h2" id="Whatintentsareneeded?">
+                    What intents are needed?
+                </h2>
+                <p>The intents that are necessary for your bot can only be dictated by yourself. Each attribute in the
+                    <span class="code-style">Intents</span> class documents what <span class="code-style">events</span>
+                    it corresponds to and what kind of cache it enables.
+                </p>
+                <p>For example, if you want a bot that functions without spammy events like presences or typing then we
+                    could do the following:</p>
+
+                <code>
+                import versacord<br>
+                intents = versacord.Intents.default()<br>
+                intents.typing = False<br>
+                intents.presences = False<br><br>
+               
+                # Somewhere else:<br>
+                # client = versacord.Client(intents=intents)<br>
+                # or<br>
+                # from versacord.ext import commands<br>
+                # bot = commands.Bot(command_prefix='!', intents=intents)<br>
+               </code>
+
+                <p>Note that this doesn’t enable <span class="code-style">Intents.members</span> since it’s a privileged
+                    intent.</p>
+                <p>Another example showing a bot that only deals with messages and guild information:</p>
+
+                <code>
+                    import versacord<br>
+                    intents = versacord.Intents(messages=True, guilds=True)<br>
+                    # If you also want reaction events enable the following:<br>
+                    # intents.reactions = True<br><br>
+                    
+                    # Somewhere else:<br>
+                    # client = versacord.Client(intents=intents)<br>
+                    # or<br>
+                    # from versacord.ext import commands<br>
+                    # bot = commands.Bot(command_prefix='!', intents=intents)<br>
+                   
+                </code>
+                <div class="mt-5"></div>
+                <h2 class="doc-h2" id="PrivilegedIntents">
+                    Privileged Intents
+                </h2>
+                <p>With the API change requiring bot authors to specify intents, some intents were restricted further
+                    and require more manual steps. These intents are called <b>privileged intents</b>.</p>
+
+                <p>A privileged intent is an intent that requires you to go to the developer portal and manually enable
+                    it. To enable privileged intents, do the following:</p>
+
+                <ol>
+                    <li>Make sure you’re logged on to the <a href="https://discord.com/" target="_blank">Discord
+                            website</a>.</li>
+                    <li>Navigate to the <a href="https://discord.com/developers/applications"
+                            target="_blank">Applications page</a>.</li>
+                    <li>
+                        <p>Make sure you’re logged on to the Discord website.</p>
+                    </li>
+                    <li>
+                        <p>Navigate to the bot tab on the left side of the screen.</p><img
+                            src="{% static 'images/discord_bot_tab.png' %}" class="img-fluid" width="670">
+                    </li>
+                    <li>
+                        <p>Scroll down to the “Privileged Gateway Intents” section and enable the intents you need.</p>
+                        <img src="{% static 'images/discord_privileged_intents.webp' %}" class="img-fluid" width="670">
+                    </li>
+                </ol>
+                <div class="alert alert-warning" role="alert" data-mdb-color="warning">
+                    <i class="fas fa-exclamation-triangle me-3"></i><span>Warning</span>
+                    <p class="mt-1">Enabling privileged intents when your bot is in over 100 guilds requires going
+                        through <a href="https://support.discord.com/hc/en-us/articles/360040720412" target="_blank">bot
+                            verification</a>. If your bot is already verified and you would like to enable a
+                        privileged intent you must go through <a
+                            href="https://support.discord.com/hc/pt-br/requests/new" target="_blank">Discord support</a>
+                        and talk to them about it.</p>
+                </div>
+                <div class="alert info alert-warning" role="alert" data-mdb-color="warning">
+                    <i class="fas fa-info-circle me-3"></i><span>Note</span>
+                    <p class="mt-1">Even if you enable intents through the developer portal, you still have to enable
+                        the intents through code as well</p>
+                </div>
+
+                <p>If you want to generate this URL dynamically at run-time inside your bot and using the <span
+                        class="code-style">versacord.Permissions</span> interface, you can use <span
+                        class="code-style">versacord.utils.oauth_url()</span>.</p>
+
+                <div class="mt-5"></div>
+                <h4 class="doc-h4">Do I need privileged intents?</h4>
+                <p>This is a quick checklist to see if you need specific privileged intents.</p>
+
+                <div class="mt-5"></div>
+                <h4 class="doc-h4">Presence Intent</h4>
+                <ul>
+                    <li>
+                        <p>Whether you use <span class="code-style">Member.status</span> at all to track member
+                            statuses.</p>
+                    </li>
+                    <li>
+                        <p>Whether you use <span class="code-style">Member.activity</span> or <span
+                                class="code-style">Member.activities</span> to check member’s activities.</p>
+                    </li>
+                </ul>
+
+                <div class="mt-5"></div>
+                <h4 class="doc-h4">Member Intent</h4>
+                <ul>
+                    <li>
+                        <p>Whether you track member joins or member leaves, corresponds to <span
+                                class="code-style">on_member_join()</span> and <span
+                                class="code-style">on_member_remove()</span> events.</p>
+                    </li>
+                    <li>
+                        <p>Whether you want to track member updates such as nickname or role changes.</p>
+                    </li>
+                    <li>
+                        <p>Whether you want to track user updates such as usernames, avatars, discriminators, etc.</p>
+                    </li>
+                    <li>
+                        <p>Whether you want to request the guild member list through <span
+                                class="code-style">Guild.chunk()</span> or <span
+                                class="code-style">Guild.fetch_members()</span>.</p>
+                    </li>
+                    <li>
+                        <p>Whether you want high accuracy member cache under <span
+                                class="code-style">Guild.members.</span></p>
+                    </li>
+                </ul>
+
+                <div class="mt-5"></div>
+                <h4 class="doc-h4">Message Content</h4>
+                <ul>
+                    <li>
+                        <p>Whether you want to read <span class="code-style">Message.content</span>, <span
+                                class="code-style">Message.embeds</span>, <span
+                                class="code-style">Message.attachments</span>, or <span
+                                class="code-style">Message.components</span> in most messages.</p>
+                    </li>
+                </ul>
+                <div class="alert info alert-warning" role="alert" data-mdb-color="warning">
+                    <i class="fas fa-info-circle me-3"></i><span>Note</span>
+                    <p class="mt-1">Without this intent, the attributes above will appear empty (either an empty string
+                        or empty array depending on the data type) in most messages. The bot will always be able to get
+                        these attributes from messages the bot sends, messages the bot receives in DMs, and messages in
+                        which the bot is mentioned.</p>
+                </div>
+
+                <div class="mt-5"></div>
+                <h2 class="doc-h2" id="MemberCache">
+                    Member Cache
+                </h2>
+                <p>Along with intents, Discord now further restricts the ability to cache members and expects bot
+                    authors to cache as little as is necessary. However, to properly maintain a cache the
+                    <span class="code-style">Intents.members</span> intent is required to track the members who left and
+                    properly evict them.
+                </p>
+
+                <p>To aid with member cache where we don’t need members to be cached, the library now has a
+                    <span class="code-style">MemberCacheFlags</span> flag to control the member cache. The documentation
+                    page for the class goes over
+                    the specific policies that are possible.
+                </p>
+
+                <p>It should be noted that certain things do not need a member cache since Discord will provide full
+                    member information if possible. For example:</p>
+
+                <ul>
+                    <li>
+                        <p><span class="code-style">on_message()</span> will have <span
+                                class="code-style">Message.author</span> be a member even if cache is disabled.</p>
+                    </li>
+                    <li>
+                        <p><span class="code-style">on_voice_state_update()</span> will have the <span
+                                class="code-style">member</span> parameter be a member even if cache is disabled.</p>
+                    </li>
+                    <li>
+                        <p><span class="code-style">on_reaction_add()</span> will have the <span
+                                class="code-style">user</span> parameter be a member when in a guild even if cache is
+                            disabled.</p>
+                    </li>
+                    <li>
+                        <p><span class="code-style">on_raw_reaction_add()</span> will have <span
+                                class="code-style">RawReactionActionEvent.member</span> be a member when in a guild even
+                            if cache is disabled.</p>
+                    </li>
+                    <li>
+                        <p>The reaction add events do not contain additional information when in direct messages. This
+                            is a Discord limitation.</p>
+                    </li>
+                    <li>
+                        <p>The reaction removal events do not have member information. This is a Discord limitation.</p>
+                    </li>
+                </ul>
+                <p>Other events that take a <span class="code-style">Member</span> will require the use of the member
+                    cache. If absolute accuracy over the member cache is desirable, then it is advisable to have the
+                    <span class="code-style">Intents.members</span> intent enabled.
+                </p>
+
+                <div class="mt-5"></div>
+                <h2 class="doc-h2" id="RetrievingMembers">
+                    Retrieving Members
+                </h2>
+                <p>If the cache is disabled or you disable chunking guilds at startup, we might still need a way to load
+                    members. The library offers a few ways to do this:</p>
+                <ul>
+                    <li>
+                        <p><span class="code-style">Guild.query_members()</span></p>
+                        <ul>
+                            <li>Used to query members by a prefix matching nickname or username.</li>
+                            <li>This can also be used to query members by their user ID.</li>
+                            <li>This uses the gateway and not the HTTP.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <p><span class="code-style">Guild.chunk()</span></p>
+                        <ul>
+                            <li>This can be used to fetch the entire member list through the gateway.
+
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <p><span class="code-style">Guild.fetch_member()</span></p>
+                        <ul>
+                            <li>Used to fetch a member by ID through the HTTP API.
+
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <p><span class="code-style">Guild.fetch_members()</span></p>
+                        <ul>
+                            <li>used to fetch a large number of members through the HTTP API.
+
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <p>It should be noted that the gateway has a strict rate limit of 120 requests per 60 seconds.</p>
+
+                <div class="mt-5"></div>
+                <h2 class="doc-h2" id="Troubleshooting">
+                    Troubleshooting
+                </h2>
+                <p>Some common issues relating to the mandatory intent change.</p>
+                <div class="mt-5"></div>
+                <h4 class="doc-h4">Where did my members go?</h4>
+                <p>Due to an <span class="code-style">API change</span> Discord is now forcing developers who want
+                    member caching to explicitly opt in
+                    to it. This is a Discord mandated change and there is no way to bypass it. To get members back, you
+                    have to explicitly enable the <span class="code-style">members privileged intent</span> and change
+                    the <span class="code-style">Intents.members</span> attribute to
+                    true.</p>
+                <p>For example:</p>
+                <code>
+                    import versacord<br>
+                    intents = versacord.Intents.default()<br>
+                    intents.members = True<br><br>
+                   
+                    # Somewhere else:<br>
+                    # client = versacord.Client(intents=intents)<br>
+                    # or<br>
+                    # from versacord.ext import commands<br>
+                    # bot = commands.Bot(command_prefix='!', intents=intents)<br>
+                   
+                </code>
+                <div class="mt-5"></div>
+                <h4 class="doc-h4">What happened to my prefix commands?</h4>
+                <p>Due to an <span class="code-style">API change</span>, to read message content in most messages, you
+                    have to explicitly opt in to it.
+                    This is a Discord mandated change and there is no way to bypass it. To get message content back, you
+                    have to explicitly enable the <span class="code-style">message content privileged intent</span> and
+                    change the
+                    <span class="code-style">Intents.message_content</span> attribute to true.
+                </p>
+                <p>For example:</p>
+                <code>
+                    import versacord<br>
+                    intents = versacord.Intents.default()<br>
+                    intents.message_content = True<br><br>
+                   
+                    # Somewhere else:<br>
+                    # client = versacord.Client(intents=intents)<br>
+                    # or<br>
+                    # from versacord.ext import commands<br>
+                    # bot = commands.Bot(command_prefix='!', intents=intents)<br>
+                </code>
+                <div class="mt-5"></div>
+                <h4 class="doc-h4">Why does <span class="code-style">on_ready</span> take so long to fire?</h4>
+                <p>As part of the API change regarding intents, Discord also changed how members are loaded in the
+                    beginning. Originally the library could request 75 guilds at once and only request members from
+                    guilds that have the <span class="code-style">Guild.large</span> attribute set to <span
+                        class="code-style">True</span>. With the new intent changes, Discord
+                    mandates that we can only send 1 guild per request. This causes a 75x slowdown which is further
+                    compounded by the fact that all guilds, not just large guilds are being requested.</p>
+
+                <p>There are a few solutions to fix this.</p>
+
+                <p>The first solution is to request the privileged presences intent along with the privileged members
+                    intent and enable both of them. This allows the initial member list to contain online members just
+                    like the old gateway. Note that we’re still limited to 1 guild per request but the number of guilds
+                    we request is significantly reduced.</p>
+
+                <p>The second solution is to disable member chunking by setting <span
+                        class="code-style">chunk_guilds_at_startup</span> to <span class="code-style">False</span> when
+                    constructing a client. Then, when chunking for a guild is necessary you can use the various
+                    techniques to <span class="code-style">retrieve members</span>.</p>
+
+                <p>To illustrate the slowdown caused by the API change, take a bot that is in 840 guilds and 95 of these
+                    guilds are “large” (over 250 members).</p>
+
+                <p>Under the original system, this would result in 2 requests to fetch the member list (75 guilds, 20
+                    guilds) roughly taking 60 seconds. With <span class="code-style">Intents.members</span> but not
+                    <span class="code-style">Intents.presences</span> this requires 840
+                    requests, with a rate limit of 120 requests per 60 seconds means that due to waiting for the rate
+                    limit it totals to around 7 minutes of waiting for the rate limit to fetch all the members. With
+                    both <span class="code-style">Intents.members</span> and <span
+                        class="code-style">Intents.presences</span> we mostly get the old behaviour so we’re only
+                    required to
+                    request for the 95 large guilds, this is slightly less than our rate limit so it’s close to the
+                    original timing to fetch the member list.
+                </p>
+
+                <p>Unfortunately due to this change being required from Discord there is nothing that the library can do
+                    to mitigate this.</p>
+
+                <p>If you truly dislike the direction Discord is going with their API, you can contact them via <a
+                        href="https://support.discord.com/hc/pt-br/requests/new" target="_blank">support</a>.
+                </p>
+                <div class="mt-5"></div>
+            </div>
+
+            {% include 'docs/partials/scrollbar.html' %}
+        </div>
+    </div>
+    {% include 'docs/partials/footer.html' %}
+</body>
+
+</html>

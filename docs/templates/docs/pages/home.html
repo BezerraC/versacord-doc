@@ -1,0 +1,73 @@
+{% include 'docs/partials/head.html' %}
+{% load static %}
+<body class="bg-versa-light">
+    {% include 'docs/partials/navbar.html' %}
+    <div class="pt-5"></div>
+    <div class="container-fluid d-flex align-items-center flex-column mt-5">
+        <img src="{% static 'images/logo_site_white.png' %}" alt="Versacord Logo" width="250">
+        <h1 class="h1-v">Versacord</h1>
+        <p class="p-v">For your <span class="typed-text"></span><span class="cursor">&nbsp;</span></p>
+        <p class="pip-text mt-5">PIP | Python 3.8</p>
+        <div class="input-group mb-3">
+            <input class="form-control js-copytextarea" value="pip install versacord">
+            <button class="btn btn-secondary js-textareacopybtn"><i class="fas fa-copy"
+                    aria-hidden="true"></i></button>
+        </div>
+    </div>
+
+    <div class="pt-5"></div>
+    <footer class="site-footer mt-5 px-5 px-md-0">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-3 col-md-6">
+                    <!-- Contact Info-->
+                    <section class="widget widget-light-skin">
+                        <h3 class="widget-title p-v pb-2">About</h3>
+                        <p class="text-white">We created Versacord. With this resource you
+                            can create anything you want using versa + discord, with more support, modules, functions
+                            and more versatility within the discord universe, welcome to Versacord your framework used
+                            to create discord bots</p>
+
+                    </section>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <!-- About Us-->
+                    <section class="widget widget-links widget-light-skin">
+                        <h3 class="widget-title p-v pb-2">Key Features</h3>
+                        <ul class="ul-home">
+                            <li>
+                                <p class="text-light">Modern Pythonic API using async and await</p>
+                            </li>
+                            <li>
+                                <p class="text-light">Proper rate limit handling</p>
+                            </li>
+                            <li>
+                                <p class="text-light">Optimised in both speed and memory</p>
+                            </li>
+                        </ul>
+                    </section>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <!-- Account / Shipping Info-->
+                    <section class="widget widget-links widget-light-skin">
+                        <h3 class="widget-title p-v pb-2">Statistics</h3>
+                        <ul class="ul-home">
+                            <li>
+                                <p class="text-light">📥0+ downloads</p>
+                            </li>
+                            <li>
+                                <p class="text-light">🌟0+ stars</p>
+                            </li>
+                            <li>
+                                <p class="text-light">👤1+ contributors</p>
+                            </li>
+                        </ul>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </footer>
+    {% include 'docs/partials/footer.html' %}
+    <script type="text/javascript" src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

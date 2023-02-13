@@ -1,0 +1,41 @@
+{% include 'docs/partials/head.html' %}
+{% load static %}
+
+<body class="bg-versa-light">
+    {% include 'docs/partials/navbar.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            {% include 'docs/partials/sidebar.html' %}
+            <div class="col-md-8 px-5 py-3">
+                {% include 'docs/partials/breadcrumb.html' %}
+                <!-- ----------------- content ---------------- -->
+                <h1 class="doc-h1" id="Gettinghelp">Getting help</h1>
+
+                <div class="mt-5"></div>
+                <p class="doc-p">If you’re having trouble with something, these resources might hel</p>
+                <ul>
+                    <li>
+                        <p>Try the <a href="/docs/faqs">FAQs</a> first, it’s got answers to all common
+                            questions.</p>
+                    </li>
+                    <li>
+                        <p>Ask questions and hang out with us in our <a href="https://discord.gg/ZpH5ymDeQd"
+                                target="_blank">Discord server</a>.</p>
+                    </li>
+                    <li>
+                        <p>Report bugs in the <a href="https://github.com/owera/versa-framework/issues"
+                                target="_blank">issue tracker</a>.</p>
+                    </li>
+                </ul>
+
+
+
+                <div class="mt-5"></div>
+            </div>
+            {% include 'docs/partials/scrollbar.html' %}
+        </div>
+    </div>
+    {% include 'docs/partials/footer.html' %}
+</body>
+
+</html>

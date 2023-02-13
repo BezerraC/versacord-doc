@@ -1,0 +1,838 @@
+{% include 'docs/partials/head.html' %}
+{% load static %}
+
+<body class="bg-versa-light">
+    {% include 'docs/partials/navbar.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            {% include 'docs/partials/sidebar.html' %}
+            <div class="col-md-8 px-5 py-3">
+                {% include 'docs/partials/breadcrumb.html' %}
+
+                <h1 class="doc-h1" id="tasksCommands">versacord.ext.application_checks - checks and hooks for
+                    application commands¶</h1>
+                <div class="mt-5"></div>
+                <h4 class="doc-h4">This extension aids in development of application commands by hooking and checking
+                    before, during, after invoke and handling errors. It has a similar interface to <a
+                        href="/ext/commands/">ext.commands checks</a>
+                </h4>
+
+                <div class="mt-5"></div>
+                <h2 class="doc-h2" id="checks">
+                    Checks
+                </h2>
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.check">@versacord.ext.application_checks.check(predicate)</span>
+                <p>A decorator that adds a check to the <a href="#">BaseApplicationCommand</a> or its subclasses. These
+                    checks are accessible via <a href="#">BaseApplicationCommand.checks</a>.</p>
+
+                <p>These checks should be predicates that take in a single parameter taking a <a
+                        href="#">Interaction</a>. If the check returns a False-like value, an ApplicationCheckFailure is
+                    raised during invocation and sent to the <a href="#">on_application_command_error()</a> event.</p>
+
+                <p>If an exception should be thrown in the predicate then it should be a subclass of <a
+                        href="#">ApplicationError</a>. Any exception not subclassed from it will be propagated while
+                    those subclassed will be sent to <a href="#">on_application_command_error()</a>.</p>
+
+                <p>A special attribute named <span class="code-style">predicate</span> is bound to the value returned by
+                    this decorator to retrieve the predicate passed to the decorator. This allows the following
+                    introspection and chaining to be done:</p>
+
+                <code>
+                    def owner_or_permissions(**perms):<br>
+                    original = application_checks.has_permissions(**perms).predicate<br>
+                    async def extended_check(interaction: Interaction):<br>
+                        if interaction.guild is None:<br>
+                            return False<br><br>
+
+                        return (<br>
+                            interaction.guild.owner_id == interaction.user.id<br>
+                            or await original(interaction)<br>
+                        )<br>
+                    return application_checks.check(extended_check)
+                </code>
+                <div class="alert info alert-warning" role="alert" data-mdb-color="warning">
+                    <i class="fas fa-info-circle me-3"></i><span>Note</span>
+                    <p class="mt-1">The function returned by predicate is always a coroutine, even if the original
+                        function was not a coroutine.</p>
+                </div>
+                <b>Examples</b>
+                <p>Creating a basic check to see if the command invoker is you.</p>
+                <code>
+                    def check_if_it_is_me(interaction: Interaction):<br>
+                        return interaction.message.author.id == 85309593344815104<br><br>
+
+                    @bot.slash_command()<br>
+                    @application_checks.check(check_if_it_is_me)<br>
+                    async def only_for_me(interaction: Interaction):<br>
+                        await interaction.response.send_message('I know you!')
+                </code>
+                <p>Transforming common checks into its own decorator:</p>
+                <code>
+                    def is_me():<br>
+                        def predicate(interaction: Interaction):<br>
+                            return interaction.user.id == 85309593344815104<br>
+                        return application_checks.check(predicate)<br><br>
+
+                    @bot.slash_command()<br>
+                    @is_me()<br>
+                    async def only_me(interaction: Interaction):<br>
+                        await interaction.response.send_message('Only you!')
+                </code>
+                <b>Parameters:</b>
+                <ul>
+                    <li><b>predicate</b> (Callable[[Interaction], bool]) – The predicate to check if the command should
+                        be invoked.</li>
+                </ul>
+
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="nextcord.ext.application_checks.check_any(*checks)">@nextcord.ext.application_checks.check_any(*checks)</span>
+                <p>A <a href="#">check()</a> that will pass if any of the given checks pass, i.e. using logical OR.</p>
+
+                <p>If all checks fail then <a href="#">ApplicationCheckAnyFailure</a> is raised to signal the failure.
+                    It inherits from <a href="#">ApplicationCheckFailure</a>.</p>
+                <div class="alert info alert-warning" role="alert" data-mdb-color="warning">
+                    <i class="fas fa-info-circle me-3"></i><span>Note</span>
+                    <p class="mt-1">The predicate attribute for this function is a coroutine.</p>
+                </div>
+                <b>Parameters:</b>
+                <ul>
+                    <li>
+                        <b>*checks</b> (Callable[[<a href="#">Interaction</a>], <a
+                            href="https://docs.python.org/3/library/functions.html#bool">bool</a>]) – An argument list
+                        of checks that have been decorated with the <a href="#">check()</a> decorator.
+                    </li>
+                </ul>
+
+                <b>Raises:</b>
+                <ul>
+                    <li>
+                        <a href="https://docs.python.org/3/library/exceptions.html#TypeError">TypeError</a> – A check
+                        passed has not been decorated with the <a href="#">check()</a> decorator.
+                    </li>
+                </ul>
+                <b>Examples</b>
+                <p>Creating a basic check to see if it’s the bot owner or the server owner:
+                </p>
+                <code>
+                    def is_guild_owner():<br>
+                        def predicate(interaction: Interaction):<br>
+                            return (<br>
+                                interaction.guild is not None<br>
+                                and interaction.guild.owner_id == interaction.user.id<br>
+                            )<br>
+                        return application_checks.check(predicate)<br><br>
+
+                    @bot.slash_command()<br>
+                    @application_checks.check_any(applications_checks.is_owner(), is_guild_owner())<br>
+                    async def only_for_owners(interaction: Interaction):<br>
+                        await interaction.response.send_message('Hello mister owner!')
+
+                </code>
+
+
+
+                <div class="mt-5"></div>
+                <h2 class="doc-h2" id="IncludedChecks">
+                    Included Checks
+                </h2>
+                <div class="mt-3"></div>
+                <h4 id="RoleChecks">
+                    Role Checks
+                </h4>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.has_role">@versacord.ext.application_checks.has_role(item)</span>
+
+                <p>A <a href="#">check</a>() that is added that checks if the member invoking the command has the role
+                    specified via the name or ID specified.</p>
+
+                <p>If a string is specified, you must give the exact name of the role, including caps and spelling.</p>
+
+                <p>If an integer is specified, you must give the exact snowflake ID of the role.</p>
+
+                <p>If the message is invoked in a private message context then the check will return <span
+                        class="code-style">False</span>.</p>
+
+                <p>This check raises one of two special exceptions, <a href="#">MissingRole</a> if the user is missing a
+                    role, or <a href="#">NoPrivateMessage</a> if it is used in a private message. Both inherit from <a
+                        href="#">ApplicationCheckFailure</a>.</p>
+
+                <b>Parameters:</b>
+                <ul>
+                    <li>
+                        <p><b>item</b> (Union[<a href="https://docs.python.org/3/library/functions.html#int">int</a>, <a
+                                href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]) – The name or ID of
+                            the role to check.</p>
+                    </li>
+                </ul>
+                <b>Example
+
+                </b>
+                <code>
+                    @bot.slash_command()<br>
+                    @application_checks.has_role('Cool Role')<br>
+                    async def cool(interaction: Interaction):<br>
+                        await interaction.response.send_message('You are cool indeed')
+                </code>
+
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.has_any_role">@versacord.ext.application_checks.has_any_role(*items)</span>
+                <p>A <a href="#">check()</a> that is added that checks if the member invoking the command has any of the
+                    roles specified. This means that if they have one out of the three roles specified, then this check
+                    will return True.</p>
+
+                <p>Similar to <a href="#">has_role()</a>, the names or IDs passed in must be exact.</p>
+
+                <p>This check raises one of two special exceptions, <a href="#">MissingAnyRole</a> if the user is
+                    missing all roles, or <a href="#">NoPrivateMessage</a> if it is used in a private message. Both
+                    inherit from <a>ApplicationCheckFailur href="#"e</a>.</p>
+
+                <p><b>Parameters:</b></p>
+                <p><b>items</b> (List[Union[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a
+                        href="https://docs.python.org/3/library/functions.html#int">int</a>]]) – An argument list of
+                    names or IDs to check that the member has roles wise.</p>
+
+                <p><b>Example</b></p>
+                <code>
+                    @bot.slash_command()<br>
+                    @application_checks.has_any_role('Moderators', 492212595072434186)<br>
+                    async def cool(interaction: Interaction):<br>
+                        await interaction.response.send_message('You are cool indeed')
+                </code>
+
+
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.bot_has_role">@versacord.ext.application_checks.bot_has_role(item)
+                </span>
+                <p>Similar to <a href="#">has_role()</a> except checks if the bot itself has the role.</p>
+
+                <p>This check raises one of two special exceptions, <a href="#">ApplicationBotMissingRole</a> if the bot
+                    is missing the role, or <a href="#">ApplicationNoPrivateMessage</a> if it is used in a private
+                    message. Both inherit from <a>ApplicationCheckFailur href="#"e</a>.</p>
+
+                <p><b>Parameters:</b></p>
+                <ul>
+                    <li>
+                        <p><b>item</b> (Union[<a href="https://docs.python.org/3/library/functions.html#int">int</a>, <a
+                                href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]) – The name or ID of
+                            the role to check.</p>
+                    </li>
+                </ul>
+
+                <p><b>Example</b></p>
+                <code>
+                    @bot.slash_command()<br>
+                    @application_checks.bot_has_role(492212595072434186)<br>
+                    async def hasrole(interaction: Interaction):<br>
+                        await interaction.response.send_message('I have the required role!')
+
+                </code>
+
+
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.bot_has_any_role">@versacord.ext.application_checks.bot_has_any_role(*items)
+                </span>
+                <p>Similar to <a href="#versacord.ext.application_checks.has_any_role">has_any_role()</a> except checks
+                    if the bot itself has any of the roles listed.</p>
+
+                <p>This check raises one of two special exceptions, <a href="#">ApplicationBotMissingAnyRole</a> if the
+                    bot is missing all roles, or <a href="#">ApplicationNoPrivateMessage</a> if it is used in a private
+                    message. Both inherit from <a>ApplicationCheckFailur href="#"e</a>.</p>
+
+                <p><b>Parameters:</b></p>
+                <ul>
+                    <li>
+                        <p><b>*items</b> (Union[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>,
+                            <a href="https://docs.python.org/3/library/functions.html#int">int</a>]) – An argument list
+                            of names or IDs to check that the bot has roles wise.
+                        </p>
+                    </li>
+                </ul>
+
+                <p><b>Example</b></p>
+                <code>
+                    @bot.slash_command()<br>
+                    @application_checks.bot_has_any_role('Moderators', 492212595072434186)<br>
+                    async def cool(interaction: Interaction):<br>
+                        await interaction.response.send_message('I have a required role!')
+                </code>
+
+
+                <div class="mt-5"></div>
+                <h4 id="PermissionChecks">
+                    Permission Checks
+                </h4>
+                <div class="mt-3"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.has_permissions">@versacord.ext.application_checks.has_permissions(**perms)
+                </span>
+                <p>A <a href="#">check()</a> that is added that checks if the member has all of the permissions
+                    necessary.</p>
+
+                <p>Note that this check operates on the current channel permissions, not the guild wide permissions.</p>
+
+                <p>The permissions passed in must be exactly like the properties shown under <a
+                        href="#">versacord.Permissions</a>.</p>
+
+                <p>This check raises a special exception, <a href="#">ApplicationMissingPermissions</a> that is
+                    inherited from <a>ApplicationCheckFailure href="#"</a>.</p>
+
+                <p>If this check is called in a DM context, it will raise an exception, <a>ApplicationNoPrivateMessage
+                        href="#"</a>.</p>
+
+                <p><b>Parameters:</b></p>
+                <ul>
+                    <li>
+                        <p><b>perms</b> (<a href="https://docs.python.org/3/library/functions.html#bool">bool</a>) – An
+                            argument list of permissions to check for.</p>
+                    </li>
+                </ul>
+
+                <p><b>Example</b></p>
+                <code>
+                    @bot.slash_command()<br>
+                    @application_checks.has_permissions(manage_messages=True)<br>
+                    async def testperms(interaction: Interaction):<br>
+                        await interaction.response.send_message('You can manage messages.')
+
+                </code>
+
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.bot_has_permissions">@versacord.ext.application_checks.bot_has_permissions(**perms)
+                </span>
+                <p>Similar to <a href="#versacord.ext.application_checks.has_permissions">has_permissions()</a> except
+                    checks if the bot itself has the permissions listed.</p>
+
+                <p>This check raises a special exception, <a href="#">ApplicationBotMissingPermissions</a> that is
+                    inherited from <a>ApplicationCheckFailure href="#"</a>.</p>
+
+                <p>If this check is called in a DM context, it will raise an exception, <a
+                        href="#">ApplicationNoPrivateMessage</a>.</p>
+
+
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.has_guild_permissions">@versacord.ext.application_checks.has_guild_permissions(**perms)
+                </span>
+                <p>Similar to <a href="#versacord.ext.application_checks.has_permissions">has_permissions()</a>, but
+                    operates on guild wide permissions instead of the current channel permissions.</p>
+
+                <p>If this check is called in a DM context, it will raise an exception, <a
+                        href="#">ApplicationNoPrivateMessage</a>.</p>
+
+                <p><b>Parameters:</b></p>
+                <ul>
+                    <li>
+                        <p><b>perms</b> (<a href="https://docs.python.org/3/library/functions.html#bool">bool</a>) – An
+                            argument list of guild permissions to check for.</p>
+                    </li>
+                </ul>
+
+                <p><b>Example</b></p>
+                <code>
+                    @bot.slash_command()<br>
+                    @application_checks.has_guild_permissions(manage_messages=True)<br>
+                    async def permcmd(interaction: Interaction):<br>
+                        await interaction.response.send_message('You can manage messages!')
+                </code>
+
+
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.bot_has_guild_permissions">@versacord.ext.application_checks.bot_has_guild_permissions(**perms)
+                </span>
+                <p>Similar to <a
+                        href="#versacord.ext.application_checks.has_guild_permissions">has_guild_permissions()</a>, but
+                    checks the bot members guild permissions.</p>
+
+
+
+
+                <div class="mt-5"></div>
+                <h4 id="ScopeChecks">
+                    Scope Checks
+                </h4>
+                <div class="mt-3"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.dm_only">@versacord.ext.application_checks.dm_only
+                </span>
+                <p>A <a href="#">check()</a> that indicates this command must only be used in a DM context. Only private
+                    messages are allowed when using the command.</p>
+
+                <p>This check raises a special exception, <a href="#">ApplicationPrivateMessageOnly</a> that is
+                    inherited
+                    from <a href="#">ApplicationCheckFailure</a>.</p>
+
+                <p><b>Example</b></p>
+                <code>
+                @bot.slash_command()<br>
+                @application_checks.dm_only()<br>
+                async def dmcmd(interaction: Interaction):<br>
+                    await interaction.response.send_message('This is in DMS!')
+            </code>
+
+
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.guild_only">@versacord.ext.application_checks.guild_only
+                </span>
+                <p>A <a href="#">check()</a> that indicates this command must only be used in a guild context only.
+                    Basically, no private messages are allowed when using the command.</p>
+
+                <p>This check raises a special exception, <a href="#">ApplicationPrivateMessageOnly</a> that is
+                    inherited
+                    from <a href="#">ApplicationCheckFailure</a>.</p>
+
+                <p><b>Example</b></p>
+                <code>
+                @bot.slash_command()<br>
+                @application_checks.guild_only()<br>
+                async def dmcmd(interaction: Interaction):<br>
+                    await interaction.response.send_message('This is in a GUILD!')
+            </code>
+
+
+
+                <div class="mt-5"></div>
+                <h4 id="OtherChecks">
+                    Other Checks
+                </h4>
+                <div class="mt-3"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.is_owner">@versacord.ext.application_checks.is_owner
+                </span>
+                <p>A <a href="#">check()</a> that checks if the person invoking this command is the owner of the bot.
+                </p>
+
+                <p>This is powered by <a href="#">ext.commands.Bot.is_owner()</a>.</p>
+
+                <p>This check raises a special exception, <a href="#">ApplicationNotOwner</a> that is derived from <a
+                        href="#">ApplicationCheckFailure</a>.</p>
+
+                <p>This check may only be used with Bot. Otherwise, it will raise <a
+                        href="#">ApplicationCheckForBotOnly</a>.</p>
+
+                <p><b>Example</b></p>
+                <code>
+                bot = commands.Bot(owner_id=297045071457681409)<br><br>
+
+                @bot.slash_command()<br>
+                @application_checks.is_owner()<br>
+                async def ownercmd(interaction: Interaction):<br>
+                    await interaction.response.send_message('Only you!')
+
+            </code>
+
+
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.is_nsfw">@versacord.ext.application_checks.is_nsfw
+                </span>
+                <p>A <a href="#">check()</a> that checks if the channel is a NSFW channel.</p>
+
+                <p>This check raises a special exception, <a href="#">ApplicationNSFWChannelRequired</a> that is derived
+                    from <a href="#">ApplicationCheckFailure</a>.</p>
+
+                <p><b>Example</b></p>
+                <code>
+                @bot.slash_command()<br>
+                @application_checks.is_nsfw()<br>
+                async def ownercmd(interaction: Interaction):<br>
+                    await interaction.response.send_message('Only NSFW channels!')
+
+            </code>
+
+
+
+                <div class="mt-5"></div>
+                <h4 id="Hooks">
+                    Hooks
+                </h4>
+                <div class="mt-3"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.application_command_before_invoke">@versacord.ext.application_checks.application_command_before_invoke(coro)
+                </span>
+                <p>A decorator that registers a coroutine as a pre-invoke hook.</p>
+
+                <p>This allows you to refer to one before invoke hook for several commands that do not have to be within
+                    the
+                    same cog.</p>
+                <p><b>Example</b></p>
+                <code>
+                async def record_usage(interaction: Interaction):<br>
+                    print(<br>
+                        interaction.user,<br>
+                        "used",<br>
+                        interaction.application_command,<br>
+                        "at",<br>
+                        interaction.message.created_at<br>
+                    )<br><br>
+
+                @bot.slash_command()<br>
+                @application_checks.application_command_before_invoke(record_usage)<br>
+                async def who(interaction: Interaction): # Output: <User> used who at <Time><br>
+                    await interaction.response.send_message("I am a bot")<br><br>
+
+                class What(commands.Cog):<br>
+                    @application_checks.application_command_before_invoke(record_usage)<br>
+                    @versacord.slash_command()<br>
+                    async def when(self, interaction: Interaction):<br>
+                        # Output: <User> used when at <Time><br>
+                        await interaction.response.send_message(<br>
+                            f"and i have existed since {interaction.client.user.created_at}"<br>
+                        )<br><br>
+
+                    @versacord.slash_command()<br>
+                    async def where(self, interaction: Interaction): # Output: <Nothing><br>
+                        await interaction.response.send_message("on Discord")<br><br>
+
+                    @versacord.slash_command()<br>
+                    async def why(self, interaction: Interaction): # Output: <Nothing><br>
+                        await interaction.response.send_message("because someone made me")<br>
+
+                bot.add_cog(What())
+
+            </code>
+
+
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.application_command_after_invoke">@versacord.ext.application_checks.application_command_after_invoke(coro)
+                </span>
+                <p>A decorator that registers a coroutine as a post-invoke hook.</p>
+
+                <p>This allows you to refer to one after invoke hook for several commands that do not have to be within
+                    the
+                    same cog.</p>
+
+
+                <div class="mt-5"></div>
+                <h4 id="Events">
+                    Events
+                </h4>
+                <div class="mt-3"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.on_application_command_error">@versacord.ext.application_checks.on_application_command_error(interaction,
+                    error)
+                </span>
+                <p>The event that is fired when an error occurs during application command invocation.</p>
+
+                <p><b>Parameters:</b></p>
+                <ul>
+                    <li>
+                        <p><b><a href="#">interaction</a></b> (Interaction) – The interaction that caused the error.</p>
+                    </li>
+                    <li>
+                        <p><b><a href="https://docs.python.org/3/library/exceptions.html#Exception">error</a></b> (<a
+                                href="https://docs.python.org/3/library/exceptions.html#Exception">Exception</a>) – The
+                            error that occurred.</p>
+                    </li>
+                </ul>
+
+
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.on_application_command_completion">@versacord.ext.application_checks.on_application_command_completion(interaction)
+                </span>
+                <p>The event that is fired when the application command invoked completed successfully without any
+                    errors.
+                </p>
+
+                <p><b>Parameters:</b></p>
+                <ul>
+                    <li>
+                        <p><b>interaction</b> (<a href="#">Interaction</a>) – The interaction of the invoked application
+                            command</p>
+                    </li>
+                </ul>
+
+
+                <div class="mt-5"></div>
+                <h4 id="Events">
+                    Events
+                </h4>
+                <div class="mt-3"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.on_application_command_error">versacord.ext.application_checks.on_application_command_error(interaction,
+                    error)
+                </span>
+                <p>The event that is fired when an error occurs during application command invocation.</p>
+
+                <p><b>Parameters</b></p>
+                <ul>
+                    <li>
+                        <p><b>interaction</b> (<a href="#">Interaction</a>) – The interaction that caused the error.</p>
+                    </li>
+                    <li>
+                        <p><b>error</b> (<a
+                                href="https://docs.python.org/3/library/exceptions.html#Exception">Exception</a>) – The
+                            error that occurred.</p>
+                    </li>
+                </ul>
+
+
+                <div class="mt-3"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.on_application_command_completion">versacord.ext.application_checks.on_application_command_completion(interaction)
+                </span>
+                <p>The event that is fired when the application command invoked completed successfully without any
+                    errors.
+                </p>
+
+                <p><b>Parameters</b></p>
+                <ul>
+                    <li>
+                        <p><b>interaction</b> (<a href="#">Interaction</a>) – The interaction of the invoked application
+                            command.</p>
+                    </li>
+                </ul>
+
+
+                <div class="mt-5"></div>
+                <h4 id="Exceptions">
+                    Exceptions
+                </h4>
+                <div class="mt-3"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.ApplicationCheckAnyFailure"><i>exception</i>
+                    versacord.ext.application_checks.ApplicationCheckAnyFailure(checks, errors)
+                </span>
+                <p>Exception raised when all predicates in <a href="#">check_any()</a> fail.</p>
+
+                <p>This inherits from <a href="#">ApplicationCheckFailure</a>.</p>
+                <span class="code-style">errors</span>
+                <p>A list of errors that were caught during execution.</p>
+
+                <p><b>Type:</b></p>
+                <ul>
+                    <li>
+                        <p>List[<a href="#">ApplicationCheckFailure</a>]</p>
+                    </li>
+                </ul>
+
+                <span class="code-style">checks</span>
+                <p>A list of check predicates that failed.</p>
+
+                <p><b>Type:</b></p>
+                <ul>
+                    <li>
+                        <p>List[Callable[[<a href="#">Interaction</a>], <a
+                                href="https://docs.python.org/3/library/functions.html#bool">bool]]</a></p>
+                    </li>
+                </ul>
+
+
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.ApplicationNoPrivateMessage"><i>exception</i>
+                    versacord.ext.application_checks.ApplicationNoPrivateMessage(message=None)
+                </span>
+                <p>Exception raised when an operation does not work in private message contexts.</p>
+
+                <p>This inherits from <a href="#">ApplicationCheckFailure</a></p>
+
+
+                <div class="mt-5"></div>
+                <span class="code-style" id="versacord.ext.application_checks.ApplicationMissingRole"><i>exception</i>
+                    versacord.ext.application_checks.ApplicationMissingRole(missing_role)
+                </span>
+                <p>Exception raised when the command invoker lacks a role to run a command.</p>
+
+                <p>This inherits from <a href="#">ApplicationCheckFailure</a></p>
+                <span class="code-style">missing_role</span>
+                <p>The required role that is missing. This is the parameter passed to <a href="#">has_role()</a>.</p>
+
+                <p><b>Type:</b></p>
+                <ul>
+                    <li>
+                        <p>Union[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a
+                                href="https://docs.python.org/3/library/functions.html#int">int</a>]
+                        </p>
+                    </li>
+                </ul>
+
+
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.ApplicationMissingAnyRole"><i>exception</i>
+                    versacord.ext.application_checks.ApplicationMissingAnyRole(missing_roles)
+                </span>
+                <p>Exception raised when the command invoker lacks any of the roles specified to run a command.</p>
+
+                <p>This inherits from <a href="#">ApplicationCheckFailure</a></p>
+                <span class="code-style">missing_role</span>
+                <p>The roles that the invoker is missing. These are the parameters passed to <a
+                        href="#">has_any_role()</a>.
+                </p>
+
+                <p><b>Type:</b></p>
+                <ul>
+                    <li>
+                        <p>List[Union[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a
+                                href="https://docs.python.org/3/library/functions.html#int">int</a>]]
+                        </p>
+                    </li>
+                </ul>
+
+
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.ApplicationBotMissingRole"><i>exception</i>
+                    versacord.ext.application_checks.ApplicationBotMissingRole(missing_role)
+                </span>
+                <p>Exception raised when the bot’s member lacks a role to run a command.</p>
+
+                <p>This inherits from <a href="#">ApplicationCheckFailure</a></p>
+                <span class="code-style">missing_role</span>
+                <p>The required role that is missing. This is the parameter passed to <a href="#">has_role()</a>.
+                </p>
+
+                <p><b>Type:</b></p>
+                <ul>
+                    <li>
+                        <p>Union[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a
+                                href="https://docs.python.org/3/library/functions.html#int">int</a>]
+                        </p>
+                    </li>
+                </ul>
+
+
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.ApplicationBotMissingAnyRole"><i>exception</i>
+                    versacord.ext.application_checks.ApplicationBotMissingAnyRole(missing_roles)
+                </span>
+                <p>Exception raised when the bot’s member lacks any of the roles specified to run a command.</p>
+
+                <p>This inherits from <a href="#">ApplicationCheckFailure</a></p>
+                <span class="code-style">missing_role</span>
+                <p>The roles that the bot’s member is missing. These are the parameters passed to <a
+                        href="#">has_any_role()</a>.
+                </p>
+
+                <p><b>Type:</b></p>
+                <ul>
+                    <li>
+                        <p>List[Union[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a
+                                href="https://docs.python.org/3/library/functions.html#int">int</a>]]
+                        </p>
+                    </li>
+                </ul>
+
+
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.ApplicationMissingPermissions"><i>exception</i>
+                    versacord.ext.application_checks.ApplicationMissingPermissions(missing_permissions, *args)
+                </span>
+                <p>Exception raised when the command invoker lacks permissions to run a command.</p>
+
+                <p>This inherits from <a href="#">ApplicationCheckFailure</a></p>
+                <span class="code-style">missing_permissions</span>
+                <p>The required permissions that are missing.</a>.
+                </p>
+
+                <p><b>Type:</b></p>
+                <ul>
+                    <li>
+                        <p>List[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]
+                        </p>
+                    </li>
+                </ul>
+
+
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.ApplicationPrivateMessageOnly"><i>exception</i>
+                    versacord.ext.application_checks.ApplicationPrivateMessageOnly(message=None)
+                </span>
+                <p>Exception raised when an operation does not work outside of private message contexts.</p>
+
+                <p>This inherits from <a href="#">ApplicationCheckFailure</a></p>
+
+
+                <div class="mt-5"></div>
+                <span class="code-style" id="versacord.ext.application_checks.ApplicationNotOwner"><i>exception</i>
+                    versacord.ext.application_checks.ApplicationNotOwner(message=None, *args)
+                </span>
+                <p>Exception raised when the message author is not the owner of the bot.</p>
+
+                <p>This inherits from <a href="#">ApplicationCheckFailure</a></p>
+
+
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.ApplicationNSFWChannelRequired"><i>exception</i>
+                    versacord.ext.application_checks.ApplicationNSFWChannelRequired(channel)
+                </span>
+                <p>Exception raised when a channel does not have the required NSFW setting.</p>
+
+                <p>This inherits from <a href="#">ApplicationCheckFailure</a></p>
+
+                <p><b>Parameters:</b></p>
+                <ul>
+                    <li>
+                        <p><b>channel</b> (Optional[Union[<a href="#">abc.GuildChannel</a>, <a href="#">Thread</a>,
+                            PartialMessageable]]) – The channel that does not have NSFW enabled.
+                        </p>
+                    </li>
+                </ul>
+
+
+                <div class="mt-5"></div>
+                <span class="code-style"
+                    id="versacord.ext.application_checks.ApplicationCheckForBotOnly"><i>exception</i>
+                    versacord.ext.application_checks.ApplicationCheckForBotOnly
+                </span>
+                <p>Exception raised when the application check may only be used for Bot.</p>
+
+                <p>This inherits from <a href="#">ApplicationCheckFailure</a></p>
+
+
+                <div class="mt-5"></div>
+                <h4 id="ExceptionHierarchy">
+                    Exception Hierarchy
+                </h4>
+                <div class="mt-3"></div>
+                <ul>
+                    <li>
+                        <a href="#">DiscordException</a>
+                        <ul>
+                            <li>
+                                <a href="#">ApplicationCheckFailure</a>
+                                <ul>
+                                    <li><a href="#">ApplicationCheckAnyFailure</a></li>
+                                    <li><a href="#">ApplicationNoPrivateMessage</a></li>
+                                    <li><a href="#">ApplicationMissingRole</a></li>
+                                    <li><a href="#">ApplicationMissingAnyRole</a></li>
+                                    <li><a href="#">ApplicationBotMissingRole</a></li>
+                                    <li><a href="#">ApplicationBotMissingAnyRole</a></li>
+                                    <li><a href="#">ApplicationMissingPermissions</a></li>
+                                    <li><a href="#">ApplicationBotMissingPermissions</a></li>
+                                    <li><a href="#">ApplicationPrivateMessageOnly</a></li>
+                                    <li><a href="#">ApplicationNotOwner</a></li>
+                                    <li><a href="#">ApplicationNSFWChannelRequired</a></li>
+                                    <li><a href="#">ApplicationCheckForBotOnly</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+
+
+                <div class="mt-5"></div>
+            </div>
+            {% include 'docs/partials/scrollbar.html' %}
+        </div>
+    </div>
+    {% include 'docs/partials/footer.html' %}
+</body>
+
+</html>

@@ -1,0 +1,602 @@
+{% include 'docs/partials/head.html' %}
+{% load static %}
+
+<body class="bg-versa-light">
+    {% include 'docs/partials/navbar.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            {% include 'docs/partials/sidebar.html' %}
+            <div class="col-md-8 px-5 py-3">
+                {% include 'docs/partials/breadcrumb.html' %}
+                <!-- ----------------- content ---------------- -->
+                <h1 class="doc-h1" id="FAQs">Frequently Asked Questions</h1>
+                <p>This is a list of Frequently Asked Questions regarding the use of <span
+                        class="code-style">versacord</span> and its extension modules. Feel free to suggest a new
+                    question or submit one via pull requests.</p>
+
+                <h4 class="doc-h4">Questions</h4>
+                <ul>
+                    <li>
+                        <p><a href="#Coroutines">Coroutines</a></p>
+                        <ul>
+                            <li>
+                                <p><a href="#WhatIsAcoroutine?">What is a coroutine?</a></p>
+                            </li>
+                            <li>
+                                <p><a href="#WhereCanIUseawait?">Where can I use await?</a></p>
+                            </li>
+                            <li>
+                                <p><a href="#blocking">What does “blocking” mean?</a></p>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <p><a href="#General">General</a></p>
+                        <ul>
+                            <li>
+                                <p><a href="#usageExamples">Where can I find usage examples?</a></p>
+                            </li>
+                            <li>
+                                <p><a href="#PlayingStatus">How do I set the “Playing” status?</a></p>
+                            </li>
+                            <li>
+                                <p><a href="#specificChannel">How do I send a message to a specific channel?</a></p>
+                            </li>
+                            <li>
+                                <p><a href="#SendDM">How do I send a DM?</a></p>
+                            </li>
+                            <li>
+                                <p><a href="#GetIdMessage">How do I get the ID of a sent message?</a></p>
+                            </li>
+                            <li>
+                                <p><a href="#UpImage">How do I upload an image?</a></p>
+                            </li>
+                            <li>
+                                <p><a href="#reactionMessage">How can I add a reaction to a message?</a></p>
+                            </li>
+                            <li>
+                                <p><a href="#coroutinePlayer">How do I pass a coroutine to the player’s “after”
+                                        function?</a></p>
+                            </li>
+                            <li>
+                                <p><a href="#runBackgorund">How do I run something in the background?</a></p>
+                            </li>
+                            <li>
+                                <p><a href="#specificModel">How do I get a specific model?</a></p>
+                            </li>
+                            <li>
+                                <p><a href="#webRequest">How do I make a web request?</a></p>
+                            </li>
+                            <li>
+                                <p><a href="#localImage">How do I use a local image file for an embed image?</a></p>
+                            </li>
+                            <li>
+                                <p><a href="#auditLog">Is there an event for audit log entries being created?</a></p>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <p><a href="#CommandsExtension">Commands Extension</a></p>
+                        <ul>
+                            <li>
+                                <p><a href="#on_messageStopWorking">Why does on_message make my commands stop
+                                        working?</a></p>
+                            </li>
+                            <li>
+                                <p><a href="#argumentsRequire">Why do my arguments require quotes?</a></p>
+                            </li>
+                            <li>
+                                <p><a href="#originalMessage">How do I get the original message?</a></p>
+                            </li>
+                            <li>
+                                <p><a href="#makeSubcommand">How do I make a subcommand?</a></p>
+                            </li>
+                            <li>
+                                <p><a href="#setupFunction">How do I make my setup function a coroutine and load it?</a>
+                                </p>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <div class="mt-5"></div>
+                <h2 class="doc-h2" id="Coroutines">
+                    Coroutines
+                </h2>
+                <p>Questions regarding coroutines and asyncio belong here.</p>
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="WhatIsAcoroutine?">
+                    What is a coroutine?
+                </h4>
+                <p>A <a href="https://docs.python.org/3/library/asyncio-task.html#coroutine"
+                        target="_blank">coroutine</a> is a function that must be invoked with <span
+                        class="code-style">await</span> or <span class="code-style">yield from</span> . When Python
+                    encounters an <span class="code-style">await</span> it stops the function’s execution at that point
+                    and works on other things until it comes back to that point and finishes off its work. This allows
+                    for your program to be doing multiple things at the same time without using threads or complicated
+                    multiprocessing.</p>
+
+                <p><b>If you forget to await a coroutine then the coroutine will not run. Never forget to await a
+                        coroutine.</b></p>
+
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="WhereCanIUseawait?">
+                    Where can I use <span class="code-style">await</span>?
+                </h4>
+                <p>You can only use <span class="code-style">await</span> inside <span class="code-style">async</span>
+                    def functions and nowhere else.</p>
+
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="blocking">
+                    What does “blocking” mean?
+                </h4>
+                <p>In asynchronous programming, a blocking call is essentially all the parts of the function that are
+                    not using <span class="code-style">await</span>. Do not despair, however, because not all forms of
+                    blocking are bad! Using blocking
+                    calls is inevitable, but you must work to make sure that you don’t excessively block functions.
+                    Remember, if you block for too long then your bot will freeze since it has not stopped the
+                    function’s execution at that point to do other things.</p>
+
+                <p>If logging is enabled, this library will attempt to warn you that blocking is occurring with the
+                    message: <span class="code-style">Heartbeat blocked for more than {n} seconds</span>. See <a
+                        href="/docs/gettingstarted/#SettingUpLogging">Setting Up Logging</a> for details on enabling
+                    logging.</p>
+
+                <p>A common source of blocking for too long is something like <span
+                        class="code-style">time.sleep()</span>. Don’t do that. Use
+                    <span class="code-style">asyncio.sleep()</span> instead. Similar to this example:
+                </p>
+
+                <code>
+                    # bad<br>
+                    time.sleep(10)<br><br>
+
+                    # good<br>
+                    await asyncio.sleep(10)
+
+                </code>
+
+                <p>Another common source of blocking for too long is using HTTP requests with the famous module
+                    <a href="https://requests.readthedocs.io/en/latest/" target="_blank">Requests: HTTP for Humans™</a>.
+                    While Requests: <a href="https://requests.readthedocs.io/en/latest/" target="_blank">HTTP for
+                        Humans™</a> is an amazing module for
+                    non-asynchronous programming, it is not a good choice for <a
+                        href="https://docs.python.org/3/library/asyncio.html#module-asyncio" target="_blank">asyncio</a>
+                    because certain requests can block
+                    the event loop too long. Instead, use the <a href="https://docs.aiohttp.org/en/stable/index.html"
+                        target="_blank">aiohttp</a> library which is installed on the side with this
+                    library.
+                </p>
+                <code>
+                    # bad<br>
+                    r = requests.get('http://aws.random.cat/meow')<br>
+                    if r.status_code == 200:<br>
+                        js = r.json()<br>
+                        await channel.send(js['file'])<br><br>
+
+                    # good<br>
+                    async with aiohttp.ClientSession() as session:<br>
+                        async with session.get('http://aws.random.cat/meow') as r:<br>
+                            if r.status == 200:<br>
+                                js = await r.json()<br>
+                                await channel.send(js['file'])<br>
+
+                </code>
+                <div class="mt-5"></div>
+                <h2 class="doc-h2" id="General">
+                    General
+                </h2>
+                <p>General questions regarding library usage belong here.</p>
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="usageExamples">
+                    Where can I find usage examples?
+                </h4>
+                <p>Example code can be found in the <a
+                        href="https://github.com/owera/versa-framework/tree/master/examples">examples folder</a> in the
+                    repository.</p>
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="PlayingStatus">
+                    How do I set the “Playing” status?
+                </h4>
+                <p>The <span class="code=style">activity</span> keyword argument may be passed in the Client constructor
+                    or Client.change_presence(),
+                    given an Activity object.</p>
+
+                <p>The constructor may be used for static activities, while Client.change_presence() may be used to
+                    update the activity at runtime.</p>
+
+                <div class="alert alert-warning" role="alert" data-mdb-color="warning">
+                    <i class="fas fa-exclamation-triangle me-3"></i><span>Warning</span>
+                    <p class="mt-1">It is highly discouraged to use Client.change_presence() or API calls in on_ready()
+                        as this event may be called many times while running, not just once.</p>
+
+                    <p>There is a high chance of disconnecting if presences are changed right after connecting.</p>
+                </div>
+
+                <p>The status type (playing, listening, streaming, watching) can be set using the ActivityType enum. For
+                    memory optimisation purposes, some activities are offered in slimmed-down versions:</p>
+                <ul>
+                    <li>Game</li>
+                    <li>Streaming</li>
+                </ul>
+                <p>Putting both of these pieces of info together, you get the following:</p>
+                <code>
+                    client = versacord.Client(activity=versacord.Game(name='my game'))<br><br>
+
+                    # or, for watching:<br>
+                    activity = versacord.Activity(name='my activity', type=versacord.ActivityType.watching)<br>
+                    client = versacord.Client(activity=activity)<br>
+
+                </code>
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="specificChannel">
+                    How do I send a message to a specific channel?
+                </h4>
+                <p>You must fetch the channel directly and then call the appropriate method. Example:</p>
+                <code>
+                    channel = client.get_channel(12324234183172)<br>
+                    await channel.send('hello')
+                </code>
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="SendDM">
+                    How do I send a DM
+                </h4>
+                <p>Get the <span class="code-style">User</span> or <span class="code-style">Member</span> object and
+                    call <span class="code-style">abc.Messageable.send()</span>. For example:</p>
+                <code>
+                    user = client.get_user(381870129706958858)<br>
+                    await user.send('👀')
+                </code>
+                <p>If you are responding to an event, such as <span class="code-style">on_message()</span>, you already
+                    have the <span class="code-style">User</span> object via <span
+                        class="code-style">Message.author</span>:</p>
+                <code>await message.author.send('👋')
+                </code>
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="GetIdMessage">
+                    How do I get the ID of a sent message?
+                </h4>
+                <p><span class="code-style">abc.Messageable.send()</span> returns the <span
+                        class="code-style">Message</span> that was sent. The ID of a message can be accessed via <span
+                        class="code-style">Message.id</span>:</p>
+                <code>message = await channel.send('hmm…')<br>
+                    message_id = message.id
+                    </code>
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="UpImage">
+                    How do I upload an image?
+                </h4>
+                <p>To upload something to Discord you have to use the <span class="code-style">File</span> object.</p>
+
+                <p>A <span class="code-style">File</span> accepts two parameters, the file-like object (or file path)
+                    and the filename to pass to Discord when uploading.</p>
+
+                <p>If you want to upload an image it’s as simple as:</p>
+
+                <code>await channel.send(file=versacord.File('my_file.png'))
+                </code>
+                <p>If you have a file-like object you can do as follows:</p>
+                <code>with open('my_file.png', 'rb') as fp:<br>
+                    await channel.send(file=versacord.File(fp, 'new_filename.png'))
+                </code>
+                <p>To upload multiple <span class="code-style">File</span>, you can use the <span
+                        class="code-style">File</span> keyword argument instead of file:</p>
+                <code>my_files = [<br>
+                    versacord.File('result.zip'),<br>
+                    versacord.File('teaser_graph.png'),<br>
+                ]<br>
+                await channel.send(files=my_files)
+                </code>
+
+                <p>If you want to upload something from a URL, you will have to use an HTTP request using <span
+                        class="code-style">aiohttp</span> and
+                    then pass an <span class="code-style">io.BytesIO</span> instance to <span
+                        class="code-style">File</span> like so:</p>
+                <code>import io<br>
+                    import aiohttp<br><br>
+                    
+                    async with aiohttp.ClientSession() as session:<br>
+                        async with session.get(my_url) as resp:<br>
+                            if resp.status != 200:<br>
+                                return await channel.send('Could not download file...')<br>
+                            data = io.BytesIO(await resp.read())<br>
+                            await channel.send(file=versacord.File(data, 'cool_image.png'))<br>
+                    </code>
+
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="reactionMessage">
+                    How can I add a reaction to a message?
+                </h4>
+                <p>You use the <span class="code-style">Message.add_reaction()</span> method.</p>
+                <p>If you want to use unicode emoji, you must pass a valid unicode code point in a string. In your code,
+                    you can write this in a few different ways:</p>
+
+                <ul>
+                    <li><span class="code-style">'👍'</span></li>
+                    <li><span class="code-style">'\U0001F44D'</span></li>
+                    <li><span class="code-style">'\N{THUMBS UP SIGN}'</span></li>
+                </ul>
+
+                <p>Quick example:</p>
+                <code>
+                    emoji = '\N{THUMBS UP SIGN}'<br>
+                    # or '\U0001f44d' or '👍'<br>
+                    await message.add_reaction(emoji)
+                </code>
+
+                <p>In case you want to use emoji that come from a message, you already get their code points in the
+                    content without needing to do anything special. You <b>cannot</b> send <span
+                        class="code-style">':thumbsup:'</span> style shorthands.</p>
+
+                <p>For custom emoji, you should pass an instance of <span class="code-style">Emoji</span>. You can also
+                    pass a <span class="code-style">'<:name:id>'</span> string, but if you can use said emoji, you
+                    should be able to use <span class="code-style">Client.get_emoji()</span> to get an emoji via ID or
+                    use <span class="code-style">utils.find()</span>/ <span class="code-style">utils.get()</span> on
+                    <span class="code-style">Client.emojis</span> or <span class="code-style">Guild.emojis</span>
+                    collections.
+                </p>
+
+                <p>The name and ID of a custom emoji can be found with the client by prefixing <span
+                        class="code-style">:custom_emoji:</span> with a backslash. For example, sending the message
+                    <span class="code-style">\:python3:</span> with the client will result in <span class="code-style">
+                        <:python3:232720527448342530>
+                    </span>.
+                </p>
+
+                <p>Quick example:</p>
+                <code>
+                    # if you have the ID already<br>
+                    emoji = client.get_emoji(310177266011340803)<br>
+                    await message.add_reaction(emoji)<br><br>
+
+                    # no ID, do a lookup<br>
+                    emoji = versacord.utils.get(guild.emojis, name='LUL')<br>
+                    if emoji:<br>
+                        await message.add_reaction(emoji)<br><br>
+
+                    # if you have the name and ID of a custom emoji:<br>
+                    emoji = '<:python3:232720527448342530>'<br>
+                    await message.add_reaction(emoji)
+                </code>
+
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="coroutinePlayer">
+                    How do I pass a coroutine to the player’s “after” function?
+                </h4>
+
+                <p>The library’s music player launches on a separate thread, ergo it does not execute inside a
+                    coroutine. This does not mean that it is not possible to call a coroutine in the <span
+                        class="code-style">after</span> parameter. To do so you must pass a callable that wraps up a
+                    couple of aspects.</p>
+
+                <p>The first gotcha that you must be aware of is that calling a coroutine is not a thread-safe
+                    operation. Since we are technically in another thread, we must take caution in calling thread-safe
+                    operations so things do not bug out. Luckily for us, <span class="code-style">asyncio</span> comes
+                    with a <span class="code-style">asyncio.run_coroutine_threadsafe()</span> function that allows us to
+                    call a coroutine from another thread.</p>
+
+                <p>However, this function returns a <span class="code-style">Future</span> and to call it we have to
+                    fetch its result. Putting all of this together we can do the following:</p>
+
+                <code>
+                    def my_after(error):<br>
+                    coro = some_channel.send('Song is done!')<br>
+                    fut = asyncio.run_coroutine_threadsafe(coro, client.loop)<br>
+                    try:<br>
+                        fut.result()<br>
+                    except versacord.Forbidden:<br>
+                        # Missing permissions to send message to that channel<br>
+                        pass<br><br>
+
+                    voice.play(versacord.FFmpegPCMAudio(url), after=my_after)<br>
+                </code>
+
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="runBackgorund">
+                    How do I run something in the background?
+                </h4>
+                <p><a href="https://github.com/owera/versa-framework/blob/master/examples/background_task.py"
+                        target="_blank">Check the background_task.py example.</a></p>
+
+
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="specificModel">
+                    How do I get a specific model?
+                </h4>
+                <p>There are multiple ways of doing this. If you have a specific model’s ID then you can use one of the
+                    following functions:</p>
+                <ul>
+                    <li><a href="#">Client.get_channel()</a></li>
+                    <li><a href="#">Client.get_guild()</a></li>
+                    <li><a href="#">Client.get_user()</a></li>
+                    <li><a href="#">Client.get_emoji()</a></li>
+                    <li><a href="#">Guild.get_member()</a></li>
+                    <li><a href="#">Guild.get_channel()</a></li>
+                    <li><a href="#">Guild.get_role()</a></li>
+                </ul>
+                <p>The following use an HTTP request:</p>
+                <ul>
+                    <li><a href="#">abc.Messageable.fetch_message()</a></li>
+                    <li><a href="#">Client.fetch_user()</a></li>
+                    <li><a href="#">Client.fetch_guilds()</a></li>
+                    <li><a href="#">Client.fetch_guild()</a></li>
+                    <li><a href="#">Guild.fetch_emoji()</a></li>
+                    <li><a href="#">Guild.fetch_emojis()</a></li>
+                    <li><a href="#">Guild.fetch_member()</a></li>
+                </ul>
+                <p>If the functions above do not help you, then use of <a href="#">utils.find()</a> or <a
+                        href="#">utils.get()</a> would serve some use in finding specific models.</p>
+                <p>Quick example:</p>
+                <code>
+                    # find a guild by name<br>
+                    guild = versacord.utils.get(client.guilds, name='My Server')<br><br>
+
+                    # make sure to check if it's found<br>
+                    if guild is not None:<br>
+                        # find a channel by name<br>
+                        channel = versacord.utils.get(guild.text_channels, name='cool-channel')
+                </code>
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="webRequest">
+                    How do I make a web request?
+                </h4>
+                <p>To make a request, you should use a non-blocking library. This library already uses and requires a
+                    3rd party library for making requests, <a href="https://docs.aiohttp.org/en/stable/index.html"
+                        target="_blank">aiohttp</a>.</p>
+                <p>Quick example:</p>
+                <code>
+                    async with aiohttp.ClientSession() as session:<br>
+                    async with session.get('http://aws.random.cat/meow') as r:<br>
+                        if r.status == 200:<br>
+                            js = await r.json()<br>
+                </code>
+                <p>See <a href="https://docs.aiohttp.org/en/stable/index.html" target="_blank">aiohttp’s full
+                        documentation</a> for more information.</p>
+
+
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="localImage">
+                    How do I use a local image file for an embed image
+                </h4>
+                <p>Discord special-cases uploading an image attachment and using it within an embed so that it will not
+                    display separately, but instead in the embed’s thumbnail, image, footer or author icon.</p>
+                <p>To do so, upload the image normally with <a href="">abc.Messageable.send()</a>, and set the embed’s
+                    image URL to <span class="code-style">attachment://image.png</span>, where <span
+                        class="code-style">image.png</span> is the filename of the image you will send.</p>
+                <p>Quick example:</p>
+                <code>
+                    file = versacord.File("path/to/my/image.png", filename="image.png")<br>
+                    embed = versacord.Embed()<br>
+                    embed.set_image(url="attachment://image.png")<br>
+                    await channel.send(file=file, embed=embed)
+                </code>
+                <div class="alert info alert-warning" role="alert" data-mdb-color="warning">
+                    <i class="fas fa-info-circle me-3"></i><span>Note</span>
+                    <p class="mt-1">Due to a Discord limitation, filenames may not include underscores.</p>
+                </div>
+
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="auditLog">
+                    Is there an event for audit log entries being created?
+                </h4>
+                <p>Since Discord does not dispatch this information in the gateway, the library cannot provide this
+                    information. This is currently a Discord limitation.</p>
+
+
+                <div class="mt-5"></div>
+                <h2 class="doc-h2" id="CommandsExtension">
+                    Commands Extension
+                </h2>
+                <p>Questions regarding <span class="code-style">versacord.ext.commands</span> belong here.</p>
+
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="on_messageStopWorking">
+                    Why does <span class="code-style">on_message</span> make my commands stop working?
+                </h4>
+                <p>Overriding the default provided <span class="code-style">on_message</span> forbids any extra commands
+                    from running. To fix this, add a <span class="code-style">bot.process_commands(message)</span> line
+                    at the end of your <span class="code-style">on_message</span>. For example:</p>
+                <code>
+                    @bot.event<br>
+                    async def on_message(message):<br>
+                        # do some extra stuff here<br><br>
+
+                        await bot.process_commands(message)
+                </code>
+                <p>Alternatively, you can place your <span class="code-style">on_message</span> logic into a
+                    <b>listener</b>. In this setup, you should not manually call <span
+                        class="code-style">bot.process_commands()</span>. This also allows you to do multiple things
+                    asynchronously in response to a message. Example:</p>
+                <code>
+                    @bot.listen('on_message')<br>
+                    async def whatever_you_want_to_call_it(message):<br>
+                        # do stuff here<br>
+                        # do not process commands here<br>
+                </code>
+
+
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="argumentsRequire">
+                    Why do my arguments require quotes?
+                </h4>
+                <p>In a simple command defined as:</p>
+                <code>
+                    @bot.command()<br>
+                    async def echo(ctx, message: str):<br>
+                        await ctx.send(message)
+                </code>
+                <p>Calling it via <span class="code-style">?echo a b c</span> will only fetch the first argument and
+                    disregard the rest. To fix this you should either call it via <span class="code-style">?echo "a b
+                        c"</span> or change the signature to have “consume rest” behaviour. Example:</p>
+                <code>
+                    @bot.command()<br>
+                    async def echo(ctx, *, message: str):<br>
+                        await ctx.send(message)
+                </code>
+                <p>This will allow you to use <span class="code-style">?echo a b c</span> without needing the quotes.
+                </p>
+
+
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="originalMessage">
+                    How do I get the original message?
+                </h4>
+                <p>The <a href="#">Context</a> contains an attribute, <a href="#">message</a> to get the original
+                    message.</p>
+                <p>Example:</p>
+                <code>
+                    @bot.command()<br>
+                    async def length(ctx):<br>
+                        await ctx.send(f'Your message is {len(ctx.message.content)} characters long.')
+
+                </code>
+
+
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="makeSubcommand">
+                    How do I make a subcommand?
+                </h4>
+                <p>Use the <a href="#">group()</a> decorator. This will transform the callback into a <a
+                        href="#">Group</a> which will allow you to add commands into the group operating as
+                    “subcommands”. These groups can be arbitrarily nested as well.</p>
+                <p>Example:</p>
+                <code>
+                    @bot.group()<br>
+                    async def git(ctx):<br>
+                        if ctx.invoked_subcommand is None:<br>
+                            await ctx.send('Invalid git command passed...')<br><br>
+
+                    @git.command()<br>
+                    async def push(ctx, remote: str, branch: str):<br>
+                        await ctx.send(f'Pushing to {remote} {branch}')
+
+                </code>
+                <p>This could then be used as <span class="code-style">?git push origin master</span>.</p>
+
+
+                <div class="mt-5"></div>
+                <h4 class="doc-h4" id="setupFunction">
+                    How do I make my setup function a coroutine and load it?
+                </h4>
+                <p>Create a new coroutine when you load the cog.</p>
+                <p>Example:</p>
+                <code>
+                    import asyncio<br><br>
+
+                    async def main():<br>
+                        bot.load_extension('cog_name')<br>
+                        await bot.start("token")<br><br>
+
+                    asyncio.run(main())
+
+                </code>
+
+                <div class="mt-5"></div>
+
+            </div>
+            {% include 'docs/partials/scrollbar.html' %}
+        </div>
+    </div>
+    {% include 'docs/partials/footer.html' %}
+</body>
+
+</html>

@@ -1,0 +1,584 @@
+{% include 'docs/partials/head.html' %}
+{% load static %}
+
+<body class="bg-versa-light">
+    {% include 'docs/partials/navbar.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            {% include 'docs/partials/sidebar.html' %}
+            <div class="col-md-8 px-5 py-3">
+                {% include 'docs/partials/breadcrumb.html' %}
+
+                <h1 class="doc-h1" id="tasksCommands">versacord.ext.tasks – asyncio.Task helpers</h1>
+                <div class="mt-5"></div>
+                <h4 class="doc-h4"><span class="code-style">One of the most common operations when making a bot is
+                        having a loop run in the background at a specified interval. This pattern is very common but has
+                        a lot of things you need to look out for:
+                </h4>
+
+                <div class="mt-3"></div>
+                <ul>
+                    <li>
+                        <p>How do I handle <a
+                                href="https://docs.python.org/3/library/asyncio-exceptions.html#asyncio.CancelledError"
+                                target="_blank">asyncio.CancelledError?</a></p>
+                    </li>
+                    <li>
+                        <p>What do I do if the internet goes out?</p>
+                    </li>
+                    <li>
+                        <p>What is the maximum number of seconds I can sleep anyway?</p>
+                    </li>
+                </ul>
+
+                <p>The goal of this versacord extension is to abstract all these worries away from you.</p>
+
+                <div class="mt-5"></div>
+                <h2 class="doc-h2" id="recipes">
+                    Recipes
+                </h2>
+                <p>A simple background task in a <a href="#">Cog</a>:</p>
+                <code>
+                    from versacord.ext import tasks, commands<br><br>
+
+                    class MyCog(commands.Cog):<br>
+                        def __init__(self):<br>
+                            self.index = 0<br>
+                            self.printer.start()<br><br>
+
+                        def cog_unload(self):<br>
+                            self.printer.cancel()<br><br>
+
+                        @tasks.loop(seconds=5.0)<br>
+                        async def printer(self):<br>
+                            print(self.index)<br>
+                </code>
+                <p>Adding an exception to handle during reconnect:</p>
+                <code>
+                    import asyncpg<br>
+                    from versacord.ext import tasks, commands<br><br>
+
+                    class MyCog(commands.Cog):<br>
+                        def __init__(self, bot):<br>
+                            self.bot = bot<br>
+                            self.data = []<br>
+                            self.batch_update.add_exception_type(asyncpg.PostgresConnectionError)<br>
+                            self.batch_update.start()<br><br>
+
+                        def cog_unload(self):<br>
+                            self.batch_update.cancel()<br><br>
+
+                        @tasks.loop(minutes=5.0)<br>
+                        async def batch_update(self):<br>
+                            async with self.bot.pool.acquire() as con:<br>
+                                # batch update here...<br>
+                                pass
+                </code>
+                <p>Looping a certain amount of times before exiting:</p>
+                <code>
+                    from versacord.ext import tasks<br><br>
+
+                    @tasks.loop(seconds=5.0, count=5)<br>
+                    async def slow_count():<br>
+                        print(slow_count.current_loop)<br><br>
+
+                    @slow_count.after_loop<br>
+                    async def after_slow_count():<br>
+                        print('done!')<br><br>
+
+                    slow_count.start()
+                </code>
+                <p>Waiting until the bot is ready before the loop starts:</p>
+                <code>
+                    from versacord.ext import tasks, commands<br><br>
+
+                    class MyCog(commands.Cog):<br>
+                        def __init__(self, bot):<br>
+                            self.index = 0<br>
+                            self.bot = bot<br>
+                            self.printer.start()<br><br>
+
+                        def cog_unload(self):<br>
+                            self.printer.cancel()<br><br>
+
+                        @tasks.loop(seconds=5.0)<br>
+                        async def printer(self):<br>
+                            print(self.index)<br>
+                            self.index += 1<br><br>
+
+                        @printer.before_loop<br>
+                        async def before_printer(self):<br>
+                            print('waiting...')<br>
+                            await self.bot.wait_until_ready()
+
+                </code>
+                <p>Doing something during cancellation:</p>
+                <code>
+                    from versacord.ext import tasks, commands<br>
+                    import asyncio<br><br>
+
+                    class MyCog(commands.Cog):<br>
+                        def __init__(self, bot):<br>
+                            self.bot= bot<br>
+                            self._batch = []<br>
+                            self.lock = asyncio.Lock()<br>
+                            self.bulker.start()<br><br>
+
+                        async def do_bulk(self):<br>
+                            # bulk insert data here<br>
+                            ...<br><br>
+
+                        @tasks.loop(seconds=10.0)<br>
+                        async def bulker(self):<br>
+                            async with self.lock:<br>
+                                await self.do_bulk()<br><br>
+
+                        @bulker.after_loop<br>
+                        async def on_bulker_cancel(self):<br>
+                            if self.bulker.is_being_cancelled() and len(self._batch) != 0:<br>
+                                # if we're cancelled and we have some data left...<br>
+                                # let's insert it to our database<br>
+                                await self.do_bulk()
+
+                </code>
+                <div class="mt-5"></div>
+                <h2 class="doc-h2" id="APIReference">
+                    API Reference
+                </h2>
+                <span class="code-style">class versacord.ext.tasks.Loop</span>
+                <div class="row mt-2">
+                    <div class="col">
+                        <p>Attributes</p>
+                        <ul>
+                            <li><a href="#current_loop">current_loop</a></li>
+                            <li><a href="#hours">hours</a></li>
+                            <li><a href="#minutes">minutes</a></li>
+                            <li><a href="#next_iteration">next_iteration</a></li>
+                            <li><a href="#seconds">seconds</a></li>
+                            <li><a href="#time">time</a></li>
+                        </ul>
+                    </div>
+                    <div class="col">
+                        <p>Methods</p>
+                        <ul>
+                            <li><span>async</span> <a href="#__call__">__call__</a></li>
+                            <li><span>def</span> <a href="#add_exception_type">add_exception_type</a></li>
+                            <li><span>@</span> <a href="#after_loop">after_loop</a></li>
+                            <li><span>@</span> <a href="#before_loop">before_loop</a></li>
+                            <li><span>def</span> <a href="#cancel">cancel</a></li>
+                            <li><span>def</span> <a href="#change_interval">change_interval</a></li>
+                            <li><span>def</span> <a href="#clear_exception_types">clear_exception_types</a></li>
+                            <li><span>@</span> <a href="#error">error</a></li>
+                            <li><span>def</span> <a href="#failed">failed</a></li>
+                            <li><span>def</span> <a href="#get_task">get_task</a></li>
+                            <li><span>def</span> <a href="#is_being_cancelled">is_being_cancelled</a></li>
+                            <li><span>def</span> <a href="#is_running">is_running</a></li>
+                            <li><span>def</span> <a href="#remove_exception_type">remove_exception_type</a></li>
+                            <li><span>def</span> <a href="#restart">restart</a></li>
+                            <li><span>def</span> <a href="#start">start</a></li>
+                            <li><span>def</span> <a href="#stop">stop</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <p>A background task helper that abstracts the loop and reconnection logic for you.</p>
+                <p>The main interface to create this is through <a href="#loop">loop()</a>.</p>
+                <div class="mt-5"></div>
+                <code id="after_loop"><b>@after_loop</b></code>
+                <p>A decorator that register a coroutine to be called after the loop finished running.</p>
+
+                <p>The coroutine must take no arguments (except <span class="code-style">self</span> in a class
+                    context).</p>
+
+                <div class="alert info alert-warning" role="alert" data-mdb-color="warning">
+                    <i class="fas fa-info-circle me-3"></i><span>Note</span>
+                    <p class="mt-1">This coroutine is called even during cancellation. If it is desirable to tell apart
+                        whether something was cancelled or not, check to see whether <a
+                            href="#is_being_cancelled">is_being_cancelled()</a> is True or not.</p>
+                </div>
+
+
+
+                <p><b>Parameters:</b></p>
+                <p><b>coro</b> (<a href="https://docs.python.org/3/library/asyncio-task.html#coroutine">coroutine</a>) –
+                    The coroutine to register after the loop finishes.</p>
+
+                <p><b>Raises:</b></p>
+                <p><a href="https://docs.python.org/3/library/exceptions.html#TypeError">TypeError</a> – The function
+                    was not a coroutine.</p>
+
+                <div class="mt-5"></div>
+                <code id="before_loop"><b>@before_loop</b></code>
+                <p>A decorator that registers a coroutine to be called before the loop starts running.</p>
+
+                <p>This is useful if you want to wait for some bot state before the loop starts, such as <a
+                        href="#">versacord.Client.wait_until_ready()</a>.</p>
+
+                <p>The coroutine must take no arguments (except <span class="code-style">self</span> in a class
+                    context).</p>
+
+                <p><b>Parameters:</b></p>
+                <p><b>coro</b> (<a href="https://docs.python.org/3/library/asyncio-task.html#coroutine">coroutine</a>) –
+                    The coroutine to register before the loop runs.</p>
+
+                <p><b>Raises:</b></p>
+                <p><a href="https://docs.python.org/3/library/exceptions.html#TypeError">TypeErro</a>r – The function
+                    was not a coroutine.
+                </p>
+
+                <div class="mt-5"></div>
+                <code id="error"><b>@error</b></code>
+                <p>A decorator that registers a coroutine to be called if the task encounters an unhandled exception.
+                </p>
+
+                <p>The coroutine must take only one argument the exception raised (except self in a class context).</p>
+
+                <p>By default this prints to <a href="https://docs.python.org/3/library/sys.html#sys.stderr">stderr</a>
+                    however it could be overridden to have a different implementation.</p>
+
+                <p><b>Parameters:</b></p>
+                <p><b>coro</b> (<a href="https://docs.python.org/3/library/asyncio-task.html#coroutine">coroutine</a>) –
+                    The coroutine to register in the event of an unhandled exception.</p>
+
+                <p><b>Raises:</b></p>
+                <p><a href="https://docs.python.org/3/library/exceptions.html#TypeError">TypeError</a> – The function
+                    was not a coroutine.
+                </p>
+
+                <div class="mt-5"></div>
+                <code id="seconds"><b><i>property</i> seconds</b></code>
+                <p>Read-only value for the number of seconds between each iteration. <span
+                        class="code-style">None</span> if an explicit <span class="code-style">time</span> value was
+                    passed instead.</p>
+
+                <p><b>Type:</b></p>
+                <p>Optional[<a href="https://docs.python.org/3/library/functions.html#float">float</a>]</p>
+
+
+                <div class="mt-5"></div>
+                <code id="minutes"><b><i>property</i> minutes</b></code>
+                <p>Read-only value for the number of minutes between each iteration. <span
+                        class="code-style">None</span> if an explicit <span class="code-style">time</span> value was
+                    passed instead.</p>
+
+                <p><b>Type:</b></p>
+                <p>Optional[<a href="https://docs.python.org/3/library/functions.html#float">float</a>]</p>
+
+
+                <div class="mt-5"></div>
+                <code id="hours"><b><i>property</i> hours</b></code>
+                <p>Read-only value for the number of hours between each iteration. <span class="code-style">None</span>
+                    if an explicit <span class="code-style">time</span> value was
+                    passed instead.</p>
+
+                <p><b>Type:</b></p>
+                <p>Optional[<a href="https://docs.python.org/3/library/functions.html#float">float</a>]</p>
+
+
+                <div class="mt-5"></div>
+                <code id="time"><b><i>property</i> time</b></code>
+                <p>Read-only list for the exact times this loop runs at. None if relative times were passed instead.</p>
+                <p><b>Type:</b></p>
+                <p>Optional[List[<a
+                        href="https://docs.python.org/3/library/datetime.html#datetime.time">datetime.time</a>]]</p>
+
+
+                <div class="mt-5"></div>
+                <code id="current_loop"><b><i>property</i> current_loop</b></code>
+                <p>The current iteration of the loop.</p>
+
+                <p><b>Type:</b></p>
+                <p><a href="https://docs.python.org/3/library/functions.html#int">int</a></p>
+
+
+                <div class="mt-5"></div>
+                <code id="next_iteration"><b><i>property</i> next_iteration</b></code>
+                <p>When the next iteration of the loop will occur</p>
+                <p><b>Type:</b></p>
+                <p>Optional[List[<a
+                        href="https://docs.python.org/3/library/datetime.html#datetime.time">datetime.time</a>]]</p>
+
+
+                <div class="mt-5"></div>
+                <code id="__call__"><b><i>await</i> __call__(*args, **kwargs)</b></code>
+                <p>This function is a <a
+                        href="https://docs.python.org/3/library/asyncio-task.html#coroutine">coroutine</a>.</p>
+
+                <p>Calls the internal callback that the task holds.</p>
+
+                <p><b>Parameters:</b></p>
+                <ul>
+                    <li>
+                        <p><b>*args</b> – The arguments to use.</p>
+                    </li>
+                    <li>
+                        <p><b>**kwargs</b> – The keyword arguments to use.</p>
+                    </li>
+
+                </ul>
+
+
+                <div class="mt-5"></div>
+                <code id="start"><b>start(*args, **kwargs)</b></code>
+                <p>Starts the internal task in the event loop.</p>
+
+                <p><b>Parameters:</b></p>
+                <ul>
+                    <li>
+                        <p><b>*args</b> – The arguments to use.</p>
+                    </li>
+                    <li>
+                        <p><b>**kwargs</b> – The keyword arguments to use.</p>
+                    </li>
+                </ul>
+
+                <p><b>Raises:</b></p>
+                <p><a href="https://docs.python.org/3/library/exceptions.html#RuntimeError">RuntimeError</a> – A task
+                    has already been launched and is running.</p>
+
+                <p><b>Returns:</b></p>
+                <p>The task that has been created.</p>
+
+                <p><b>Return type:</b></p>
+                <p><a href="https://docs.python.org/3/library/asyncio-task.html#asyncio.Task">asyncio.Task</a></p>
+
+
+                <div class="mt-5"></div>
+                <code id="stop"><b>stop()</b></code>
+                <p>Gracefully stops the task from running.</p>
+
+                <p>Unlike <a href="#cancel">cancel()</a>, this allows the task to finish its current iteration before
+                    gracefully exiting.</p>
+                <div class="alert info alert-warning" role="alert" data-mdb-color="warning">
+                    <i class="fas fa-info-circle me-3"></i><span>Note</span>
+                    <p class="mt-1">If the internal function raises an error that can be handled before finishing then
+                        it will retry until it succeeds.</p>
+                    <p>If this is undesirable, either remove the error handling before stopping via <a
+                            href="#clear_exception_types">clear_exception_types()</a> or use <a
+                            href="#cancel">cancel()</a> instead</p>
+                </div>
+
+                <div class="mt-5"></div>
+                <code id="cancel"><b>cancel()</b></code>
+                <p>Cancels the internal task, if it is running.
+                </p>
+
+
+                <div class="mt-5"></div>
+                <code id="restart"><b>restart(*args, **kwargs)</b></code>
+                <p>A convenience method to restart the internal task.
+                </p>
+                <div class="alert info alert-warning" role="alert" data-mdb-color="warning">
+                    <i class="fas fa-info-circle me-3"></i><span>Note</span>
+                    <p class="mt-1">Due to the way this function works, the task is not returned like <a
+                            href="#">start()</a>.</p>
+                </div>
+                <p><b>Parameters:</b></p>
+                <ul>
+                    <li>
+                        <b>*args</b> – The arguments to use.
+                    </li>
+                    <li>
+                        <b>**kwargs</b> – The keyword arguments to use.
+                    </li>
+                </ul>
+
+
+                <div class="mt-5"></div>
+                <code id="add_exception_type"><b>add_exception_type(*exceptions)</b></code>
+                <p>Adds exception types to be handled during the reconnect logic.
+                </p>
+                <p>By default the exception types handled are those handled by <a
+                        href="#">versacord.Client.connect()</a>, which includes a lot of internet disconnection errors.
+                </p>
+                <p>This function is useful if you’re interacting with a 3rd party library that raises its own set of
+                    exceptions.</p>
+                <b>Parameters:</b>
+                <ul>
+                    <li><b>*exceptions</b> (Type[<a
+                            href="https://docs.python.org/3/library/exceptions.html#BaseException">BaseException</a>]) –
+                        An
+                        argument list of exception classes to handle.</li>
+                </ul>
+                <b>Raises:</b>
+                <ul>
+                    <li><a href="https://docs.python.org/3/library/exceptions.html#TypeError">TypeError</a> – An
+                        exception
+                        passed is either not a class or not inherited from <a
+                            href="https://docs.python.org/3/library/exceptions.html#BaseException">BaseException</a>.
+                    </li>
+                </ul>
+
+
+
+                <div class="mt-5"></div>
+                <code id="clear_exception_types"><b>clear_exception_types()</b></code>
+                <p>Removes all exception types that are handled.
+                </p>
+                <div class="alert info alert-warning" role="alert" data-mdb-color="warning">
+                    <i class="fas fa-info-circle me-3"></i><span>Note</span>
+                    <p class="mt-1">This operation obviously cannot be undone!</p>
+                </div>
+
+
+                <div class="mt-5"></div>
+                <code id="remove_exception_type"><b>remove_exception_type(*exceptions)</b></code>
+                <p>Removes exception types from being handled during the reconnect logic.
+                </p>
+                <b>Parameters:</b>
+                <ul>
+                    <li><b>*exceptions</b> (Type[<a
+                            href="https://docs.python.org/3/library/exceptions.html#BaseException">BaseException</a>]) –
+                        An
+                        argument list of exception classes to handle.</li>
+                </ul>
+                <b>Returns:</b>
+                <ul>
+                    <li>Whether all exceptions were successfully removed.</li>
+                </ul>
+                <b>Return type:</b>
+                <ul>
+                    <li><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></li>
+                </ul>
+
+                <div class="mt-5"></div>
+                <code id="get_task"><b>get_task()</b></code>
+                <p>Optional[<a
+                        href="https://docs.python.org/3/library/asyncio-task.html#asyncio.Task">asyncio.Task</a>]:
+                    Fetches the internal task or <span class="code-style">None</span> if there isn’t one running.
+                </p>
+
+
+                <div class="mt-5"></div>
+                <code id="is_being_cancelled"><b>is_being_cancelled()</b></code>
+                <p>Whether the task is being cancelled.</p>
+
+
+                <div class="mt-5"></div>
+                <code id="failed"><b>failed()</b></code>
+                <p><a href="https://docs.python.org/3/library/functions.html#bool">bool</a>: Whether the internal task
+                    has failed.</p>
+
+
+                <div class="mt-5"></div>
+                <code id="is_running"><b>is_running()</b></code>
+                <p><a href="https://docs.python.org/3/library/functions.html#bool">bool</a>: Check if the task is
+                    currently running.</p>
+
+
+                <div class="mt-5"></div>
+                <code id="change_interval"><b>change_interval(*, seconds=0, minutes=0, hours=0, time=...)</b></code>
+                <p>Changes the interval for the sleep time.</p>
+                <b>Parameters:</b>
+                <ul>
+                    <li><b>seconds</b> (<a href="https://docs.python.org/3/library/functions.html#float">float</a>) –
+                        The
+                        number of seconds between every iteration.</li>
+
+                    <li><b>minutes</b> (<a href="https://docs.python.org/3/library/functions.html#float">float</a>) –
+                        The
+                        number of minutes between every iteration.</li>
+
+                    <li><b>hours</b> (<a href="https://docs.python.org/3/library/functions.html#float">float</a>) – The
+                        number of hours between every iteration.</li>
+
+                    <li><b>time</b> (Union[<a
+                            href="https://docs.python.org/3/library/datetime.html#datetime.time">datetime.time</a>,
+                        Sequence[<a
+                            href="https://docs.python.org/3/library/datetime.html#datetime.time">datetime.time</a>]]) –
+
+                        The exact times to run this loop at. Either a non-empty list or a single value of <a
+                            href="https://docs.python.org/3/library/datetime.html#datetime.time">datetime.time</a>
+                        should be
+                        passed. This cannot be used in conjunction with the relative time parameters.</li>
+                </ul>
+                <div class="alert info alert-warning" role="alert" data-mdb-color="warning">
+                    <i class="fas fa-info-circle me-3"></i><span>Note</span>
+                    <p class="mt-1">Duplicate times will be ignored, and only run once.</p>
+                </div>
+
+                <b>Raises:</b>
+                <ul>
+                    <li><a href="https://docs.python.org/3/library/exceptions.html#ValueError">ValueError</a> – An
+                        invalid value was given.</li>
+
+                    <li><a href="https://docs.python.org/3/library/exceptions.html#TypeError">TypeError</a> – An invalid
+                        value for the <span class="code-style">time</span> parameter was passed, or the time parameter
+                        was passed in conjunction with relative <span class="code-style">time</span> parameters.</li>
+                </ul>
+                <code>
+                    versacord.ext.tasks.loop(*, seconds=..., minutes=..., hours=..., time=..., count=None, reconnect=True, loop=...)
+                </code>
+                <p>A decorator that schedules a task in the background for you with optional reconnect logic. The
+                    decorator returns a <a href="#">Loop</a>.</p>
+
+                <b>Parameters:</b>
+                <ul>
+                    <li><b>seconds</b> (<a href="https://docs.python.org/3/library/functions.html#float">float</a>) –
+                        The
+                        number of seconds between every iteration.</li>
+
+                    <li><b>minutes</b> (<a href="https://docs.python.org/3/library/functions.html#float">float</a>) –
+                        The
+                        number of minutes between every iteration.</li>
+
+                    <li><b>hours</b> (<a href="https://docs.python.org/3/library/functions.html#float">float</a>) – The
+                        number of hours between every iteration.</li>
+
+                    <li><b>time</b> (Union[<a
+                            href="https://docs.python.org/3/library/datetime.html#datetime.time">datetime.time</a>,
+                        Sequence[<a
+                            href="https://docs.python.org/3/library/datetime.html#datetime.time">datetime.time</a>]]) –
+
+                        The exact times to run this loop at. Either a non-empty list or a single value of <a
+                            href="https://docs.python.org/3/library/datetime.html#datetime.time">datetime.time</a>
+                        should be passed. Timezones are supported. If no timezone is given for the times, it is assumed
+                        to represent UTC time.
+                        <br>
+                        This cannot be used in conjunction with the relative time parameters.
+                    </li>
+                </ul>
+                <div class="alert info alert-warning" role="alert" data-mdb-color="warning">
+                    <i class="fas fa-info-circle me-3"></i><span>Note</span>
+                    <p class="mt-1">Duplicate times will be ignored, and only run once.</p>
+                </div>
+                <div class="alert alert-warning" role="alert" data-mdb-color="warning">
+                    <i class="fas fa-exclamation-triangle me-3"></i><span>Warning</span>
+                    <p class="mt-1">”Semi-aware” timezones cannot be used. Using pytz.timezone() to pass tzinfo will
+                        raise an exception.</p>
+                </div>
+                <ul>
+                    <li><b>count</b> (Optional[<a href="https://docs.python.org/3/library/functions.html#int">int</a>])
+                        – The number of loops to do, <span class="code-style">None</span> if it should be an infinite
+                        loop.</li>
+
+                    <li><b>reconnect</b> (<a href="https://docs.python.org/3/library/functions.html#bool">bool</a>) –
+                        Whether to handle errors and restart the task using an exponential back-off algorithm similar to
+                        the one used in <a href="#">versacord.Client.connect()</a>.</li>
+
+                    <li><b>loop</b> (<a
+                            href="https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop">asyncio.AbstractEventLoop</a>)
+                        – The loop to use to register the task, if not given defaults to <a
+                            href="https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.get_event_loop">asyncio.get_event_loop()</a>.
+                    </li>
+                </ul>
+                <b>Raises:</b>
+                <ul>
+                    <li><a href="https://docs.python.org/3/library/exceptions.html#ValueError">ValueError</a> – An
+                        invalid value was given.</li>
+
+                    <li><a href="https://docs.python.org/3/library/exceptions.html#TypeError">TypeError</a> – The
+                        function was not a coroutine, an invalid value for the <span class="code-style">time</span>
+                        parameter was passed, <span class="code-style">time</span> parameter was passed in conjunction
+                        with relative <span class="code-style">time</span> parameters, or an incompatible timezone
+                        module was used for the tzinfo parameter of <span class="code-style">time</span>.</li>
+                </ul>
+                <div class="mt-5"></div>
+            </div>
+
+            {% include 'docs/partials/scrollbar.html' %}
+        </div>
+    </div>
+    {% include 'docs/partials/footer.html' %}
+</body>
+
+</html>

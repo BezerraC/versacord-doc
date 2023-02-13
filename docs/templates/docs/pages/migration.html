@@ -1,0 +1,69 @@
+{% include 'docs/partials/head.html' %}
+{% load static %}
+
+<body class="bg-versa-light">
+    {% include 'docs/partials/navbar.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            {% include 'docs/partials/sidebar.html' %}
+            <div class="col-md-8 px-5 py-3">
+                {% include 'docs/partials/breadcrumb.html' %}
+                <!-- ----------------- content ---------------- -->
+                <h1 class="doc-h1" id="Migratingtoversacord">Migrating to versacord</h1>
+                <p>Due to the original discord.py repository becoming read-only, we decided that it would be necessary
+                    to fork it and keep on developing further. We also wanted to change the name and voted on versacord
+                    in order to properly register it at pypi.</p>
+
+                <div class="mt-5"></div>
+                <h2 class="doc-h2" id="Portingfromdiscord.py">
+                    Porting from discord.py
+                </h2>
+                <p>In order to port a bot using discord.py to versacord, follow these steps:</p>
+                <ol>
+                    <li>
+                        <p>Uninstall discord.py:</p><code># Linux/macOS<br>
+                        python3 -m pip uninstall discord.py<br><br>
+                        
+                        # Windows<br>
+                        py -3 -m pip uninstall discord.py</code>
+                    </li>
+                    <li>
+                        <p>Install versacord:</p>
+                        <code>
+                            # Linux/macOS<br>
+                            python3 -m pip install -U versacord<br><br>
+
+                            # Windows<br>
+                            py -3 -m pip install -U versacord
+                        </code>
+                    </li>
+                    <li>
+                        <p>Update the following import statements:</p>
+                        <ul>
+                            <li><span class="code-style">import discord</span> -> <span class="code-style">import
+                                    versacord</span></li>
+                            <li><span class="code-style">from discord.ext</span> -> <span class="code-style">from
+                                    versacord.ext</span></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <p>For all places in your code that used <span class="code-style">discord</span> (embeds,
+                            colors, etc), change them to use <span class="code-style">versacord</span>.</p>
+                        <div class="alert info alert-warning" role="alert" data-mdb-color="warning">
+                            <i class="fas fa-info-circle me-3"></i><span>Note</span>
+                            <p class="mt-1">Steps 3 and 4 are not entirely necessary and your code should still work,
+                                but is highly
+                                recommended.</p>
+                        </div>
+                    </li>
+                </ol>
+
+                <div class="mt-5"></div>
+            </div>
+            {% include 'docs/partials/scrollbar.html' %}
+        </div>
+    </div>
+    {% include 'docs/partials/footer.html' %}
+</body>
+
+</html>
